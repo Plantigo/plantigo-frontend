@@ -8,7 +8,6 @@ import {
 import type { LinksFunction } from "@remix-run/node";
 
 import styles from "./tailwind.css?url";
-import { Button } from "./components/ui/button";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -34,12 +33,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <div className="h-screen items-center flex justify-center text-7xl font-bold">
-          <div className="flex flex-col gap-3">
-            Plantigo
-            <Button>Go to app</Button>
-          </div>
-        </div>
+        {children}
         <ScrollRestoration />
         <Scripts />
       </body>
