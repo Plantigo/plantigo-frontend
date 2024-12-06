@@ -9,6 +9,14 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
-    volumes:
-      - .:/app
-      - /app/node_modules
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
