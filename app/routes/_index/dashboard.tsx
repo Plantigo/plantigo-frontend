@@ -1,78 +1,19 @@
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, Battery, Terminal, WifiOff } from "lucide-react";
-import { Device, DeviceCarousel } from "./device-carousel";
-import { Button } from "~/components/ui/button";
+import { AlertCircle } from "lucide-react";
+import { DeviceCarousel } from "./device-carousel";
 import { PlantNotifications } from "./plant-notification";
-import MoistureDiagram from "./moisture-diagram";
-import { useToast } from "~/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { LoadingOverlay } from "./loading-overlay";
 import { PlantDetails } from "./device-details";
-import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../../components/ui/tooltip";
-
-const devices: Device[] = [
-  {
-    id: "1",
-    name: "Device 1",
-    batteryLevel: 85,
-    plantName: "Monstera",
-    plantHealth: "good",
-    moisture: 65,
-    temperature: 22,
-    lightLevel: 75,
-    isConnected: true,
-  },
-  {
-    id: "2",
-    name: "Device 2",
-    batteryLevel: 45,
-    plantName: "Ficus",
-    plantHealth: "medium",
-    moisture: 40,
-    temperature: 20,
-    lightLevel: 60,
-    isConnected: true,
-  },
-  {
-    id: "3",
-    name: "Device 3",
-    batteryLevel: 20,
-    plantName: "Cactus",
-    plantHealth: "poor",
-    moisture: 15,
-    temperature: 25,
-    lightLevel: 90,
-    isConnected: true,
-  },
-  {
-    id: "4",
-    name: "Device 4",
-    batteryLevel: 70,
-    plantName: "Orchid",
-    plantHealth: "good",
-    moisture: 55,
-    temperature: 21,
-    lightLevel: 65,
-    isConnected: true,
-  },
-  {
-    id: "5",
-    name: "Device 5",
-    batteryLevel: 10,
-    plantName: "Succulent",
-    plantHealth: "poor",
-    moisture: 5,
-    temperature: 23,
-    lightLevel: 85,
-    isConnected: false,
-  },
-];
+} from "@/components/ui/tooltip";
+import { Device, devices } from "@/lib/mocked-devices";
 
 export default function Dashboard() {
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);

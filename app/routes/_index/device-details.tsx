@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
+} from "@/components/ui/card";
 import { Battery, Leaf, Thermometer, Sun, Droplets } from "lucide-react";
 import {
   LineChart,
@@ -17,7 +17,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { cn } from "~/lib/utils";
+import { cn } from "@/lib/utils";
 import MoistureDiagram from "./moisture-diagram";
 
 interface PlantDetailsProps {

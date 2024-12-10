@@ -6,9 +6,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "~/components/ui/dialog";
-import { Button } from "~/components/ui/button";
-import { useToast } from "~/hooks/use-toast";
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export default function TopBar() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -42,7 +42,7 @@ export default function TopBar() {
   };
 
   return (
-    <div className="bg-white shadow-sm">
+    <div className="bg-white shadow-sm py-1">
       <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center">
           <Leaf className="w-6 h-6 text-green-600 mr-2" />

@@ -1,26 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Battery, Leaf, Wifi, WifiOff } from "lucide-react";
-import { Card, CardContent } from "~/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "~/components/ui/carousel";
-import { Skeleton } from "~/components/ui/skeleton";
-
-export interface Device {
-  id: string;
-  name: string;
-  batteryLevel: number;
-  plantName: string;
-  plantHealth: "good" | "medium" | "poor";
-  moisture: number;
-  temperature: number;
-  lightLevel: number;
-  isConnected: boolean;
-}
+} from "@/components/ui/carousel";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Device, getBatteryColor } from "@/lib/mocked-devices";
 
 interface DeviceCarouselProps {
   devices: Device[];
@@ -55,12 +44,6 @@ export function DeviceCarousel({
     return () => clearInterval(interval);
   }, []);
 
-  const getBatteryColor = (level: number) => {
-    if (level > 60) return "text-green-500";
-    if (level > 20) return "text-yellow-500";
-    return "text-red-500";
-  };
-
   const getPlantHealthColor = (health: Device["plantHealth"]) => {
     switch (health) {
       case "good":
@@ -80,7 +63,7 @@ export function DeviceCarousel({
           : "Loading..."}
       </div>
 
-      <Carousel className="w-full max-w-xs sm:max-w-md md:max-w-lg">
+      <Carousel>
         <CarouselContent>
           {isLoading
             ? Array.from({ length: 3 }).map((_, index) => (
@@ -90,7 +73,7 @@ export function DeviceCarousel({
                 >
                   <Card>
                     <CardContent className="flex flex-col gap-4 p-6">
-                      <Skeleton className="h-6 w-[100px]" />
+                      <Skeleton className="h-6 w-3/3" />
                       <Skeleton className="h-6 w-2/3" />
                       <Skeleton className="h-6 w-3/3" />
                     </CardContent>
