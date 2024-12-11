@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "@remix-run/react";
 
 export default function TopBar() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -77,6 +78,9 @@ export default function TopBar() {
               onClick={handleShutdownDevices}
             >
               Shutdown Devices
+            </Button>
+            <Button variant="secondary" className="w-full" asChild>
+              <Link to="/login">Login</Link>
             </Button>
             <Button
               variant="destructive"
