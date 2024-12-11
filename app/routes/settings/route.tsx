@@ -1,12 +1,20 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Wifi, Battery, Trash2, Plus } from "lucide-react";
-import { devices, getBatteryColor } from "@/lib/mocked-devices";
+import { Device, devices, getBatteryColor } from "@/lib/mocked-devices";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { RenameDeviceDialog } from "./rename-device-dialog";
+import { useLoaderData } from "@remix-run/react";
+
+export async function loader() {
+  console.log("Loading devices data on server...");
+  return devices;
+}
 
 export default function SettingsPage() {
+  const devicesData = useLoaderData<Device[]>();
+
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [currentDevice, setCurrentDevice] = useState({
     id: "1",
@@ -31,7 +39,7 @@ export default function SettingsPage() {
             Add Device
           </Button>
         </div>
-        {devices.map((device) => (
+        {devicesData.map((device) => (
           <Card key={device.id} className="bg-white shadow-sm mb-4">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-4">
