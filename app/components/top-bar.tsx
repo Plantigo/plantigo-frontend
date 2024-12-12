@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "@remix-run/react";
 
-export default function TopBar() {
+export function TopBar() {
   const [isModalOpen, setModalOpen] = useState(false);
   const { toast } = useToast();
 
@@ -43,64 +43,66 @@ export default function TopBar() {
   };
 
   return (
-    <div className="bg-white shadow-sm py-1">
-      <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center">
-          <Leaf className="w-6 h-6 text-green-600 mr-2" />
-          <h1 className="text-xl font-bold text-green-800">Plantigo</h1>
+    <header className="fixed top-0 left-0 w-full bg-white shadow-md z-10">
+      <div className="bg-white shadow-sm py-1">
+        <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center">
+            <Leaf className="w-6 h-6 text-green-600 mr-2" />
+            <h1 className="text-xl font-bold text-green-800">Plantigo</h1>
+          </div>
+
+          <button
+            className="flex items-center text-sm font-medium text-gray-600 hover:text-red-600 transition-colors"
+            onClick={handleOpenModal}
+          >
+            <PowerCircle className="w-5 h-5 mr-1" />
+          </button>
         </div>
 
-        <button
-          className="flex items-center text-sm font-medium text-gray-600 hover:text-red-600 transition-colors"
-          onClick={handleOpenModal}
-        >
-          <PowerCircle className="w-5 h-5 mr-1" />
-        </button>
+        {/* Modal */}
+        <Dialog open={isModalOpen} onOpenChange={setModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Manage Options</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Button
+                variant="default"
+                className="w-full"
+                onClick={handleRestartDevices}
+              >
+                Restart Devices
+              </Button>
+              <Button
+                variant="default"
+                className="w-full"
+                onClick={handleShutdownDevices}
+              >
+                Shutdown Devices
+              </Button>
+              <Button variant="secondary" className="w-full" asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button
+                variant="destructive"
+                className="w-full"
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleCloseModal}
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {/* Modal */}
-      <Dialog open={isModalOpen} onOpenChange={setModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Manage Options</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Button
-              variant="default"
-              className="w-full"
-              onClick={handleRestartDevices}
-            >
-              Restart Devices
-            </Button>
-            <Button
-              variant="default"
-              className="w-full"
-              onClick={handleShutdownDevices}
-            >
-              Shutdown Devices
-            </Button>
-            <Button variant="secondary" className="w-full" asChild>
-              <Link to="/login">Login</Link>
-            </Button>
-            <Button
-              variant="destructive"
-              className="w-full"
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={handleCloseModal}
-            >
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </header>
   );
 }
