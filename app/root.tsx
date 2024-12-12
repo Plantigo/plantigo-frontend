@@ -8,8 +8,6 @@ import {
 import type { LinksFunction } from "@remix-run/node";
 
 import styles from "./tailwind.css?url";
-import TopBar from "./components/top-bar";
-import BottomMenu from "./components/bottom-menu";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -35,16 +33,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <main className="flex flex-col min-h-screen bg-green-50 relative py-24 px-14">
-          <header className="fixed top-0 left-0 w-full bg-white shadow-md z-10">
-            <TopBar />
-          </header>
-          <main className="flex-grow flex items-center justify-center w-full">
-            {children}
-          </main>
-          <footer className="fixed bottom-0 left-0 w-full bg-white shadow-md z-10">
-            <BottomMenu />
-          </footer>
+        <main className="flex flex-col min-h-screen bg-green-50 relative py-24">
+          {children}
           <ScrollRestoration />
           <Scripts />
         </main>
