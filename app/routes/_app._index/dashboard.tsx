@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
 import { DeviceCarousel } from "./device-carousel";
-import { PlantNotifications } from "./plant-notification";
+import { PlantNotifications } from "./plant-notifications";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingOverlay } from "./loading-overlay";
 import { PlantDetails } from "./device-details";
