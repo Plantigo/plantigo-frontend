@@ -9,7 +9,7 @@ export interface PlantNotification {
 }
 export const notifications: PlantNotification[] = [
   {
-    id: '1',
+    id: 1,
     message: "Water plant #1 at 2:00 PM",
     type: "water",
     timestamp: "Today",
