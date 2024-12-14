@@ -1,37 +1,84 @@
-import { useForm } from "react-hook-form";
+import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Form, Link } from "@remix-run/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Leaf } from "lucide-react";
-import { Link } from "@remix-run/react";
+import { Leaf, LoaderCircle } from "lucide-react";
+import { ActionFunctionArgs } from "@remix-run/node";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
+import { login } from "./actions";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password is too short." }),
 });
 
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const {
+    errors,
+    data,
+    receivedValues: defaultValues,
+  } = await getValidatedFormData<Record<string, string>>(
+    request,
+    zodResolver(formSchema)
+  );
+  if (errors) {
+    return { errors, defaultValues };
+  }
+
+  const response = await login(data);
+
+  if (response.ok) {
+    return { redirect: "/" };
+  } else if (response.status === 401) {
+    return {
+      errors: {
+        root: {
+          message: "Account not found. Please check your email and password.",
+        },
+      },
+      defaultValues,
+    };
+  }
+
+  return {
+    errors: {
+      root: {
+        message: "An unexpected error occurred. Please try again later.",
+      },
+    },
+    defaultValues,
+  };
+};
+
 export default function LoginPage() {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const { toast } = useToast();
+
+  const {
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    register,
+  } = useRemixForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: "onSubmit",
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
+  useEffect(() => {
+    if (errors.root?.message) {
+      toast({
+        title: "Error",
+        description: errors.root.message,
+        variant: "destructive",
+      });
+    }
+  }, [errors.root?.message]);
 
   return (
     <Card className="w-full max-w-md">
@@ -44,50 +91,42 @@ export default function LoginPage() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
+        <Form
+          onSubmit={handleSubmit}
+          method="POST"
+          className="flex flex-col gap-4"
+        >
+          <label htmlFor="email" className="flex flex-col gap-1">
+            <span className="font-semibold">Email</span>
+            <Input
+              placeholder="Enter your email here"
+              type="email"
+              {...register("email")}
+            />
+            <span className="text-destructive">
+              {errors.email && <p>{errors.email.message}</p>}
+            </span>
+          </label>
+          <label htmlFor="password" className="flex flex-col gap-1">
+            <span className="font-semibold">Password</span>
+            <Input
+              placeholder="Enter your passoword here"
+              type="password"
+              {...register("password")}
+            />
+            <span className="text-destructive">
+              {errors.password && <p>{errors.password.message}</p>}
+            </span>
+          </label>
+          <Button
+            size="lg"
+            type="submit"
+            className="mt-2 w-full"
+            disabled={isSubmitting}
           >
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Enter your email here"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Enter your password here"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button size="lg" type="submit" className="mt-2">
-              Submit
-            </Button>
-          </form>
+            {isSubmitting && <LoaderCircle className="animate-spin" />}
+            Login
+          </Button>
         </Form>
         <div className="border-b w-full my-5"></div>
         <div className="flex flex-col gap-3">
