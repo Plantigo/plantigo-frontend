@@ -9,7 +9,7 @@ import { Leaf, LoaderCircle } from "lucide-react";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-import { login } from "./actions";
+import { login } from "../_auth/actions";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
