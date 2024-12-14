@@ -10,6 +10,7 @@ import { ActionFunctionArgs } from "@remix-run/node";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { login } from "../_auth/actions";
+import { tokenCookie } from "../_auth/cookies.server";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -32,27 +33,40 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const response = await login(data);
 
   if (response.ok) {
-    console.log(await response.json());
-    return redirect("/");
-  } else if (response.status === 401) {
-    return {
-      errors: {
-        root: {
-          message: "Account not found. Please check your email and password.",
-        },
-      },
-      defaultValues,
-    };
-  }
+    const cookieHeader = request.headers.get("Cookie");
+    const cookie = (await tokenCookie.parse(cookieHeader)) || {};
 
-  return {
-    errors: {
-      root: {
-        message: "An unexpected error occurred. Please try again later.",
+    const { access, refresh } = await response.json();
+
+    cookie.access = access;
+    cookie.refresh = refresh;
+
+    return redirect("/", {
+      headers: {
+        "Set-Cookie": await tokenCookie.serialize(cookie),
       },
-    },
-    defaultValues,
-  };
+    });
+  } else {
+    if (response.status === 401) {
+      return {
+        errors: {
+          root: {
+            message: "Account not found. Please check your email and password.",
+          },
+        },
+        defaultValues,
+      };
+    } else {
+      return {
+        errors: {
+          root: {
+            message: "An unexpected error occurred. Please try again later.",
+          },
+        },
+        defaultValues,
+      };
+    }
+  }
 };
 
 export default function LoginPage() {
