@@ -7,7 +7,7 @@ export async function login(data: Record<string, string>) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      username: data.email,
+      email: data.email,
       password: data.password,
     }),
   });

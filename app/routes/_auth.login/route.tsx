@@ -2,7 +2,7 @@ import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { Form, Link } from "@remix-run/react";
+import { Form, Link, redirect } from "@remix-run/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Leaf, LoaderCircle } from "lucide-react";
@@ -13,7 +13,7 @@ import { login } from "../_auth/actions";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password is too short." }),
+  password: z.string().min(8, { message: "Password is too short." }),
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -32,7 +32,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const response = await login(data);
 
   if (response.ok) {
-    return { redirect: "/" };
+    console.log(await response.json());
+    return redirect("/");
   } else if (response.status === 401) {
     return {
       errors: {
