@@ -9,11 +9,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "@remix-run/react";
+import { Link, useFetcher } from "@remix-run/react";
 
 export function TopBar() {
   const [isModalOpen, setModalOpen] = useState(false);
   const { toast } = useToast();
+  const fetcher = useFetcher();
 
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
@@ -85,13 +86,15 @@ export function TopBar() {
               <Button variant="secondary" className="w-full" asChild>
                 <Link to="/login">Login</Link>
               </Button>
-              <Button
-                variant="destructive"
-                className="w-full"
-                onClick={handleLogout}
+              <fetcher.Form
+                method="POST"
+                action="/logout"
+                onSubmit={handleLogout}
               >
-                Logout
-              </Button>
+                <Button variant="destructive" className="w-full" type="submit">
+                  Logout
+                </Button>
+              </fetcher.Form>
             </div>
             <DialogFooter>
               <Button

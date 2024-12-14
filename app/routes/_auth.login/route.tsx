@@ -2,7 +2,7 @@ import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { Form, Link } from "@remix-run/react";
+import { Form, Link, redirect } from "@remix-run/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Leaf, LoaderCircle } from "lucide-react";
@@ -10,10 +10,11 @@ import { ActionFunctionArgs } from "@remix-run/node";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { login } from "../_auth/actions";
+import { tokenCookie } from "../_auth/cookies.server";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password is too short." }),
+  password: z.string().min(8, { message: "Password is too short." }),
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -32,26 +33,40 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const response = await login(data);
 
   if (response.ok) {
-    return { redirect: "/" };
-  } else if (response.status === 401) {
-    return {
-      errors: {
-        root: {
-          message: "Account not found. Please check your email and password.",
-        },
-      },
-      defaultValues,
-    };
-  }
+    const cookieHeader = request.headers.get("Cookie");
+    const cookie = (await tokenCookie.parse(cookieHeader)) || {};
 
-  return {
-    errors: {
-      root: {
-        message: "An unexpected error occurred. Please try again later.",
+    const { access, refresh } = await response.json();
+
+    cookie.access = access;
+    cookie.refresh = refresh;
+
+    return redirect("/", {
+      headers: {
+        "Set-Cookie": await tokenCookie.serialize(cookie),
       },
-    },
-    defaultValues,
-  };
+    });
+  } else {
+    if (response.status === 401) {
+      return {
+        errors: {
+          root: {
+            message: "Account not found. Please check your email and password.",
+          },
+        },
+        defaultValues,
+      };
+    } else {
+      return {
+        errors: {
+          root: {
+            message: "An unexpected error occurred. Please try again later.",
+          },
+        },
+        defaultValues,
+      };
+    }
+  }
 };
 
 export default function LoginPage() {
