@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /plantigo/plantigo-frontend
+            cd /root/plantigo/plantigo-frontend
 
             docker tag ${{ secrets.DOCKERHUB_USERNAME }}/plantigo-frontend:latest ${{ secrets.DOCKERHUB_USERNAME }}/plantigo-frontend:rollback || true
 
