@@ -1,15 +1,12 @@
-version: "3.8"
+version: '3.8'
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: kwiatuh/plantigo-frontend:latest
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: production
-      API_BASE_URL: http://api.plantigo.online
     restart: always
     logging:
       driver: "json-file"
