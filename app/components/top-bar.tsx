@@ -40,6 +40,7 @@ export function TopBar() {
       title: "Logged Out",
       description: "You have been successfully logged out.",
     });
+    fetcher.submit({}, { method: "POST", action: "/logout" });
     setModalOpen(false);
   };
 
@@ -86,15 +87,13 @@ export function TopBar() {
               <Button variant="secondary" className="w-full" asChild>
                 <Link to="/login">Login</Link>
               </Button>
-              <fetcher.Form
-                method="POST"
-                action="/logout"
-                onSubmit={handleLogout}
+              <Button
+                variant="destructive"
+                className="w-full"
+                onClick={handleLogout}
               >
-                <Button variant="destructive" className="w-full" type="submit">
-                  Logout
-                </Button>
-              </fetcher.Form>
+                Logout
+              </Button>
             </div>
             <DialogFooter>
               <Button
