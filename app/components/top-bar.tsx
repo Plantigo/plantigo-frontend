@@ -9,12 +9,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Link, useFetcher } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 
 export function TopBar() {
   const [isModalOpen, setModalOpen] = useState(false);
   const { toast } = useToast();
   const fetcher = useFetcher();
+  const loaderData = useLoaderData<{ userId: string }>();
 
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
@@ -84,16 +85,20 @@ export function TopBar() {
               >
                 Shutdown Devices
               </Button>
-              <Button variant="secondary" className="w-full" asChild>
-                <Link to="/login">Login</Link>
-              </Button>
-              <Button
-                variant="destructive"
-                className="w-full"
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
+              {!loaderData.userId && (
+                <Button variant="secondary" className="w-full" asChild>
+                  <Link to="/login">Login</Link>
+                </Button>
+              )}
+              {loaderData.userId && (
+                <Button
+                  variant="destructive"
+                  className="w-full"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              )}
             </div>
             <DialogFooter>
               <Button

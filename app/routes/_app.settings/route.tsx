@@ -8,7 +8,6 @@ import { RenameDeviceDialog } from "./rename-device-dialog";
 import { useLoaderData } from "@remix-run/react";
 
 export async function loader() {
-  console.log("Loading devices data on server...");
   return devices;
 }
 
