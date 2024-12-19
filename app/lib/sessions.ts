@@ -3,7 +3,7 @@ import * as env from "@/lib/env.server";
 import { verifyJwtToken } from "./verify-token";
 import { refreshAccessToken } from "@/routes/_auth/actions";
 
-const { getSession, commitSession, destroySession } =
+export const { getSession, commitSession, destroySession } =
   createCookieSessionStorage({
     cookie: {
       name: "__session",
@@ -17,24 +17,20 @@ const { getSession, commitSession, destroySession } =
 
 export async function createUserSession(
   accessToken: string,
-  refreshToken: string,
-  redirectTo: string
+  refreshToken: string
 ) {
   const session = await getSession();
+  console.log("accessToken", accessToken);
+  console.log("refreshToken", refreshToken);
   session.set("accessToken", accessToken);
   session.set("refreshToken", refreshToken);
-  return {
-    headers: {
-      "Set-Cookie": await commitSession(session),
-      Location: redirectTo,
-    },
-    status: 302,
-  };
+  console.log("session data", session.data);
+  return session;
 }
 
 export async function getUserSession(request: Request) {
   const cookie = request.headers.get("Cookie");
-  return getSession(cookie);
+  return await getSession(cookie);
 }
 
 export async function getUserToken(request: Request) {
@@ -47,7 +43,7 @@ export async function logout(request: Request) {
   return {
     headers: {
       "Set-Cookie": await destroySession(session),
-      Location: "/",
+      Location: "/login",
     },
     status: 302,
   };
@@ -55,31 +51,39 @@ export async function logout(request: Request) {
 
 export async function requireAuth(request: Request) {
   const session = await getUserSession(request);
+  console.log("session", session.get("accessToken"));
   let accessToken = session.get("accessToken");
+
+  if (!accessToken) {
+    return null;
+  }
 
   const isAccessTokenValid = await verifyJwtToken(accessToken);
 
-  // Jeśli access token jest nieważny
   if (!isAccessTokenValid) {
     const refreshToken = session.get("refreshToken");
 
     if (!refreshToken) {
-      return await logout(request);
+      return null;
     }
 
     try {
-      const response = await refreshAccessToken({
-        refresh: refreshToken,
-      });
+      const response = await refreshAccessToken({ refresh: refreshToken });
+      if (!response.ok) {
+        return null;
+      }
+
       const newTokens = await response.json();
       accessToken = newTokens.access;
 
       session.set("accessToken", accessToken);
+      console.log("session data", session.data);
+      request.headers.set("Set-Cookie", await commitSession(session));
     } catch (error) {
       console.error("Failed to refresh access token", error);
-      return await logout(request);
+      return null;
     }
   }
 
-  return { accessToken };
+  return request;
 }

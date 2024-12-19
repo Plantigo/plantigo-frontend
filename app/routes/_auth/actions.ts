@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "@/lib/env.server";
 
 export async function login(data: Record<string, string>) {
-  return await fetch(`${API_BASE_URL}/api/v1/auth/token/`, {
+  const response = await fetch(`${API_BASE_URL}/api/v1/auth/token/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -11,6 +11,8 @@ export async function login(data: Record<string, string>) {
       password: data.password,
     }),
   });
+
+  return response;
 }
 
 export async function refreshAccessToken(data: Record<string, string>) {

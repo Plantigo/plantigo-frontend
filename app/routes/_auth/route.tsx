@@ -1,12 +1,17 @@
 import { TopBar } from "@/components/top-bar";
 import { getUser } from "@/lib/get-user.server";
+import { requireAuth } from "@/lib/sessions";
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await getUser(request);
-  if (user) {
-    return redirect("/");
+  const req = await requireAuth(request);
+  const user = await getUser(req);
+
+  if (user && user.userId) {
+    return redirect("/", {
+      headers: req?.headers,
+    });
   }
 
   return { userId: null };
