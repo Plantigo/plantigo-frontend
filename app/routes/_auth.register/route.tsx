@@ -38,11 +38,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const response = await registerUser(data);
 
   if (response.ok) {
-    // const { access, refresh } = await response.json();
-    // const session = await createUserSession(access, refresh);
     return redirect("/account-created");
   } else {
-    if (response.status === 401) {
+    if (response.status === 400) {
       return {
         errors: {
           root: {
