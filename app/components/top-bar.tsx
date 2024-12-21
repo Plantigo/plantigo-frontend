@@ -7,14 +7,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useFetcher } from "@remix-run/react";
+import { useUserData } from "@/hooks/useUserData";
+
+interface ButtonData {
+  variant: ButtonProps["variant"];
+  label: string;
+  onClick?: () => void;
+  link?: string;
+}
 
 export function TopBar() {
   const [isModalOpen, setModalOpen] = useState(false);
   const { toast } = useToast();
   const fetcher = useFetcher();
+  const { userId } = useUserData();
 
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
@@ -44,6 +53,37 @@ export function TopBar() {
     setModalOpen(false);
   };
 
+  const authButtons: ButtonData[] = [
+    {
+      variant: "default",
+      label: "Restart Devices",
+      onClick: handleRestartDevices,
+    },
+    {
+      variant: "default",
+      label: "Shutdown Devices",
+      onClick: handleShutdownDevices,
+    },
+    {
+      variant: "destructive",
+      label: "Logout",
+      onClick: handleLogout,
+    },
+  ];
+
+  const noAuthButtons: ButtonData[] = [
+    {
+      variant: "secondary",
+      label: "Sign In",
+      link: "/login",
+    },
+    {
+      variant: "default",
+      label: "Sign Up",
+      link: "/register",
+    },
+  ];
+
   return (
     <header className="fixed top-0 left-0 w-full bg-white shadow-md z-10">
       <div className="bg-white shadow-sm py-1">
@@ -70,30 +110,35 @@ export function TopBar() {
               <DialogTitle>Manage Options</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <Button
-                variant="default"
-                className="w-full"
-                onClick={handleRestartDevices}
-              >
-                Restart Devices
-              </Button>
-              <Button
-                variant="default"
-                className="w-full"
-                onClick={handleShutdownDevices}
-              >
-                Shutdown Devices
-              </Button>
-              <Button variant="secondary" className="w-full" asChild>
-                <Link to="/login">Login</Link>
-              </Button>
-              <Button
-                variant="destructive"
-                className="w-full"
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
+              {userId &&
+                authButtons.map((btn, index) => (
+                  <Button
+                    key={index}
+                    variant={btn.variant}
+                    className="w-full"
+                    onClick={btn.onClick}
+                  >
+                    {btn.label}
+                  </Button>
+                ))}
+
+              {!userId &&
+                noAuthButtons.map((btn, index) => (
+                  <Button
+                    key={index}
+                    variant={btn.variant}
+                    className="w-full"
+                    asChild={!!btn.link}
+                  >
+                    {btn.link ? (
+                      <Link to={btn.link} onClick={handleCloseModal}>
+                        {btn.label}
+                      </Link>
+                    ) : (
+                      btn.label
+                    )}
+                  </Button>
+                ))}
             </div>
             <DialogFooter>
               <Button

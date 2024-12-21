@@ -1,10 +1,7 @@
-import { redirect } from "@remix-run/node";
-import { tokenCookie } from "../_auth/cookies.server";
+import { ActionFunctionArgs, redirect } from "@remix-run/node";
+import { logout } from "@/lib/sessions";
 
-export async function action() {
-  return redirect("/", {
-    headers: {
-      "Set-Cookie": await tokenCookie.serialize("", { maxAge: 0 }),
-    },
-  });
+export async function action({ request }: ActionFunctionArgs) {
+  const { headers } = await logout(request);
+  return redirect("/", { headers });
 }

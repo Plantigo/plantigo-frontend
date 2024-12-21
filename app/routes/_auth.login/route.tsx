@@ -5,12 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Form, Link, redirect } from "@remix-run/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Leaf, LoaderCircle } from "lucide-react";
+import { Leaf, LoaderCircle, Eye, EyeOff } from "lucide-react";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { login } from "../_auth/actions";
-import { tokenCookie } from "../_auth/cookies.server";
+import { commitSession, createUserSession } from "@/lib/sessions";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -33,17 +33,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const response = await login(data);
 
   if (response.ok) {
-    const cookieHeader = request.headers.get("Cookie");
-    const cookie = (await tokenCookie.parse(cookieHeader)) || {};
-
     const { access, refresh } = await response.json();
-
-    cookie.access = access;
-    cookie.refresh = refresh;
-
+    const session = await createUserSession(access, refresh);
     return redirect("/", {
       headers: {
-        "Set-Cookie": await tokenCookie.serialize(cookie),
+        "Set-Cookie": await commitSession(session),
       },
     });
   } else {
@@ -71,6 +65,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function LoginPage() {
   const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     handleSubmit,
@@ -122,13 +117,24 @@ export default function LoginPage() {
               {errors.email && <p>{errors.email.message}</p>}
             </span>
           </label>
-          <label htmlFor="password" className="flex flex-col gap-1">
+          <label htmlFor="password" className="flex flex-col gap-1 relative">
             <span className="font-semibold">Password</span>
             <Input
-              placeholder="Enter your passoword here"
-              type="password"
+              placeholder="Enter your password here"
+              type={showPassword ? "text" : "password"}
               {...register("password")}
             />
+            <button
+              type="button"
+              className="absolute right-5 top-11"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <EyeOff className="text-muted-foreground" />
+              ) : (
+                <Eye className="text-muted-foreground" />
+              )}
+            </button>
             <span className="text-destructive">
               {errors.password && <p>{errors.password.message}</p>}
             </span>
