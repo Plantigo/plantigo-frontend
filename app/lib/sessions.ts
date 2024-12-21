@@ -51,7 +51,7 @@ export async function logout(request: Request) {
 
 export async function requireAuth(request: Request) {
   const session = await getUserSession(request);
-  console.log("session", session.get("accessToken"));
+
   let accessToken = session.get("accessToken");
 
   if (!accessToken) {
@@ -76,8 +76,8 @@ export async function requireAuth(request: Request) {
       const newTokens = await response.json();
       accessToken = newTokens.access;
 
+      session.unset("accessToken");
       session.set("accessToken", accessToken);
-      console.log("session data", session.data);
       request.headers.set("Set-Cookie", await commitSession(session));
     } catch (error) {
       console.error("Failed to refresh access token", error);

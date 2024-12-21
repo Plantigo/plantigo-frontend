@@ -5,12 +5,12 @@ import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const req = await requireAuth(request);
-  const user = await getUser(req);
+  const authRequest = await requireAuth(request);
+  const user = await getUser(authRequest);
 
   if (user && user.userId) {
     return redirect("/", {
-      headers: req?.headers,
+      headers: authRequest?.headers,
     });
   }
 

@@ -6,16 +6,18 @@ import { getUser } from "@/lib/get-user.server";
 import { requireAuth } from "@/lib/sessions";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const req = await requireAuth(request);
-  const user = await getUser(req);
+  const authRequest = await requireAuth(request);
+  const user = await getUser(authRequest);
 
   if (!user || !user.userId) {
     return redirect("/login", {
-      headers: req?.headers,
+      headers: authRequest?.headers,
     });
   }
 
-  return { userId: user.userId };
+  return new Response(JSON.stringify({ userId: user.userId }), {
+    headers: authRequest?.headers,
+  });
 }
 
 export default function AppLayout() {
