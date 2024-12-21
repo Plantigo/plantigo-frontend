@@ -20,11 +20,8 @@ export async function createUserSession(
   refreshToken: string
 ) {
   const session = await getSession();
-  console.log("accessToken", accessToken);
-  console.log("refreshToken", refreshToken);
   session.set("accessToken", accessToken);
   session.set("refreshToken", refreshToken);
-  console.log("session data", session.data);
   return session;
 }
 
