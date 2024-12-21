@@ -1,13 +1,15 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
     image: kwiatuh/plantigo-frontend:latest
     ports:
-      - "3000:3000" 
+      - "3000:3000"
     environment:
-      NODE_ENV: ${NODE_ENV}  
+      NODE_ENV: ${NODE_ENV}
       API_BASE_URL: ${API_BASE_URL}
+    env_file:
+      - .env
     restart: always
     logging:
       driver: "json-file"
@@ -15,7 +17,7 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: ["CMD", "curl", "-f", "${HEALTHCHECK_URL}"] 
+      test: ["CMD", "curl", "-f", "${HEALTHCHECK_URL}"]
       interval: 30s
       timeout: 10s
       retries: 3
