@@ -130,9 +130,9 @@ export default function LoginPage() {
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
-                <EyeOff className="text-muted-foreground" />
+                <EyeOff className="text-muted-foreground hover:text-primary" />
               ) : (
-                <Eye className="text-muted-foreground" />
+                <Eye className="text-muted-foreground hover:text-primary" />
               )}
             </button>
             <span className="text-destructive">
