@@ -26,3 +26,19 @@ export async function refreshAccessToken(data: Record<string, string>) {
     }),
   });
 }
+
+export async function registerUser(data: Record<string, string>) {
+  const response = await fetch(`${API_BASE_URL}/api/v1/auth/register/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: data.email,
+      password: data.password,
+      confirm_password: data.confirmPassword,
+    }),
+  });
+
+  return response;
+}
