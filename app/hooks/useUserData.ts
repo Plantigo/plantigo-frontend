@@ -1,12 +1,13 @@
+import { UserInfo } from "@/lib/get-user.server";
 import { useLoaderData } from "@remix-run/react";
 
 interface UserLoaderData {
-  userId: string | null;
+  user: UserInfo | null;
 }
 
 export function useUserData(): UserLoaderData {
-  const loaderData = useLoaderData() as UserLoaderData | string;
+  const loaderData = useLoaderData<string>();
   const parsedData =
     typeof loaderData === "string" ? JSON.parse(loaderData) : loaderData;
-  return { userId: parsedData.userId ?? null };
+  return { user: parsedData };
 }

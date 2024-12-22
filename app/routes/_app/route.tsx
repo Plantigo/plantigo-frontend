@@ -9,13 +9,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const authRequest = await requireAuth(request);
   const user = await getUser(authRequest);
 
-  if (!user || !user.userId) {
+  if (!user) {
     return redirect("/login", {
       headers: authRequest?.headers,
     });
   }
 
-  return new Response(JSON.stringify({ userId: user.userId }), {
+  return new Response(JSON.stringify({ ...user }), {
     headers: authRequest?.headers,
   });
 }

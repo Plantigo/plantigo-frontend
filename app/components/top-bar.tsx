@@ -23,7 +23,7 @@ export function TopBar() {
   const [isModalOpen, setModalOpen] = useState(false);
   const { toast } = useToast();
   const fetcher = useFetcher();
-  const { userId } = useUserData();
+  const { user } = useUserData();
 
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
@@ -95,6 +95,7 @@ export function TopBar() {
             </div>
           </Link>
 
+          {user?.email}
           <button
             className="flex items-center text-sm font-medium text-gray-600 hover:text-red-600 transition-colors"
             onClick={handleOpenModal}
@@ -110,7 +111,7 @@ export function TopBar() {
               <DialogTitle>Manage Options</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              {userId &&
+              {user &&
                 authButtons.map((btn, index) => (
                   <Button
                     key={index}
@@ -122,7 +123,7 @@ export function TopBar() {
                   </Button>
                 ))}
 
-              {!userId &&
+              {!user &&
                 noAuthButtons.map((btn, index) => (
                   <Button
                     key={index}

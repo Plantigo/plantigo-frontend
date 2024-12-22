@@ -55,6 +55,11 @@ export async function requireAuth(request: Request) {
     return null;
   }
 
+  const userInfo = session.get("userInfo");
+  if (userInfo && (userInfo.iss as string).includes("accounts.google.com")) {
+    return request;
+  }
+
   const isAccessTokenValid = await verifyJwtToken(accessToken);
 
   if (!isAccessTokenValid) {
