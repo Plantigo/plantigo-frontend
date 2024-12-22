@@ -8,13 +8,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const authRequest = await requireAuth(request);
   const user = await getUser(authRequest);
 
-  if (user && user.userId) {
+  if (user) {
     return redirect("/", {
       headers: authRequest?.headers,
     });
   }
 
-  return { userId: null };
+  return { user: null };
 }
 
 export default function AuthLayout() {

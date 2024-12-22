@@ -2,7 +2,7 @@ import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { Form, Link, redirect } from "@remix-run/react";
+import { Form, Link, redirect, useLoaderData } from "@remix-run/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Leaf, LoaderCircle, Eye, EyeOff } from "lucide-react";
@@ -16,6 +16,13 @@ const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(8, { message: "Password is too short." }),
 });
+
+export const loader = () => {
+  return {
+    googleClientId: process.env.GOOGLE_CLIENT_ID || "",
+    googleRedirectUri: process.env.GOOGLE_REDIRECT_URI || "",
+  };
+};
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const {
@@ -66,6 +73,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function LoginPage() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+  const { googleClientId, googleRedirectUri } = useLoaderData<typeof loader>();
 
   const {
     handleSubmit,
@@ -79,6 +87,8 @@ export default function LoginPage() {
       password: "",
     },
   });
+
+  const googleLoginUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${googleClientId}&redirect_uri=${googleRedirectUri}&response_type=code&scope=openid%20email%20profile`;
 
   useEffect(() => {
     if (errors.root?.message) {
@@ -151,9 +161,11 @@ export default function LoginPage() {
         </Form>
         <div className="border-b w-full my-5"></div>
         <div className="flex flex-col gap-3">
-          <Button variant="outline" size="lg" className="w-full">
-            <img className="w-6 h-6" src="google.svg" alt="google" />
-            Login with Google
+          <Button variant="outline" size="lg" className="w-full" asChild>
+            <a href={googleLoginUrl}>
+              <img className="w-6 h-6" src="google.svg" alt="google" />
+              Login with Google
+            </a>
           </Button>
           <Button size="lg" variant="outline" className="w-full">
             <img className="w-6 h-6" src="apple.svg" alt="google" />
