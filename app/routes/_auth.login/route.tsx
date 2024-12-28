@@ -41,7 +41,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (response.ok) {
     const { access, refresh } = await response.json();
-    const session = await createUserSession(access, refresh);
+    const session = await createUserSession({
+      accessToken: access,
+      refreshToken: refresh,
+      authType: "custom",
+    });
     return redirect("/", {
       headers: {
         "Set-Cookie": await commitSession(session),

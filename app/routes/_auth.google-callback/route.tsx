@@ -33,29 +33,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 
   const tokenData = await tokenResponse.json();
+
   const accessToken = tokenData.access_token;
-  const idToken = tokenData.id_token;
 
-  const userInfoResponse = await fetch(
-    "https://www.googleapis.com/oauth2/v2/userinfo",
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
-
-  if (!userInfoResponse.ok) {
-    return redirect("/login");
-  }
-
-  const userInfo = await userInfoResponse.json();
-  const decodedIdToken = JSON.parse(
-    Buffer.from(idToken.split(".")[1], "base64").toString()
-  );
-  userInfo.iss = decodedIdToken.iss;
-  const session = await createUserSession(accessToken, tokenData.refresh_token);
-  session.set("userInfo", userInfo);
+  const session = await createUserSession({
+    accessToken,
+    refreshToken: tokenData.refresh_token,
+    authType: "google",
+  });
 
   return redirect("/", {
     headers: {
