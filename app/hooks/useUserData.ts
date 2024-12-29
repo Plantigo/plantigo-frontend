@@ -1,4 +1,4 @@
-import { UserInfo } from "@/lib/get-user.server";
+import { UserInfo } from "@/lib/require-auth.server";
 import { useLoaderData } from "@remix-run/react";
 
 interface UserLoaderData {
