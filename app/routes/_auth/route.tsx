@@ -9,8 +9,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
 
   if (user) {
+    if (user.firstLogin) {
+      return redirect("/setup-device", {
+        headers: authRequest.headers,
+      });
+    }
     return redirect("/", {
-      headers: authRequest?.headers,
+      headers: authRequest.headers,
     });
   }
 

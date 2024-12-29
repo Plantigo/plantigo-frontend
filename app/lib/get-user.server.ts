@@ -1,10 +1,5 @@
 import { getUserSession } from "@/lib/sessions";
-
-export interface UserInfo {
-  userId: string;
-  email: string;
-  name: string;
-}
+import { UserInfo } from "./require-auth.server";
 
 export async function getUser(
   request: Request | null

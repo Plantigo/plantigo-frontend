@@ -7,6 +7,7 @@ export interface UserInfo {
   userId: string;
   email: string;
   name: string;
+  firstLogin: boolean;
 }
 
 interface AuthStrategy {
@@ -71,6 +72,7 @@ class CustomAuthStrategy implements AuthStrategy {
       userId: data.id,
       email: data.email,
       name: data.username,
+      firstLogin: data.first_login,
     };
   }
 }
