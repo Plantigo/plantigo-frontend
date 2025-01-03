@@ -29,7 +29,7 @@ class GoogleAuthStrategy implements AuthStrategy {
 
   async getUserInfo(accessToken: string): Promise<UserInfo> {
     const response = await fetch(
-      "https://www.googleapis.com/oauth2/v2/userinfo",
+      `${API_BASE_URL}/api/v1/auth/users/google-userinfo/`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -40,7 +40,8 @@ class GoogleAuthStrategy implements AuthStrategy {
     return {
       userId: data.id,
       email: data.email,
-      name: data.name,
+      name: data.username,
+      firstLogin: data.first_login,
     };
   }
 }
