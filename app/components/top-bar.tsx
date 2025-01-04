@@ -90,8 +90,9 @@ export function TopBar() {
         <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/">
             <div className="flex items-center">
-              <Leaf className="w-6 h-6 text-green-600 mr-2" />
-              <h1 className="text-xl font-bold text-green-800">Plantigo</h1>
+              <span className="flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 bg-clip-text text-transparent font-bold text-xl">
+                Plantigo <Leaf className="w-6 h-6 text-green-500" />
+              </span>
             </div>
           </Link>
 

@@ -20,7 +20,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function SetupLayout() {
   return (
-    <main className="flex-grow flex items-center justify-center w-full px-14">
+    <main>
       <Outlet />
     </main>
   );
