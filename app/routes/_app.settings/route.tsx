@@ -5,7 +5,7 @@ import { Device, devices, getBatteryColor } from "@/lib/mocked-devices";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { RenameDeviceDialog } from "./rename-device-dialog";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 
 export async function loader() {
   return devices;
@@ -33,9 +33,16 @@ export default function SettingsPage() {
       <section className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Devices</h2>
-          <Button variant="outline" size="sm" className="text-green-500">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Device
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-green-500"
+            asChild
+          >
+            <Link to="/setup-device">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Device
+            </Link>
           </Button>
         </div>
         {devicesData.map((device) => (

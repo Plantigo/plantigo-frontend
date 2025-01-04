@@ -102,8 +102,8 @@ export default function RegisterPage() {
       <CardHeader>
         <CardTitle className="text-3xl font-bold text-center flex justify-center gap-2 items-center">
           <span>Register in</span>
-          <span className="text-primary flex items-center">
-            Plantigo <Leaf className="w-7 h-7" />
+          <span className="flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 bg-clip-text text-transparent">
+            Plantigo <Leaf className="w-8 h-8 text-green-500" />
           </span>
         </CardTitle>
       </CardHeader>
@@ -176,7 +176,7 @@ export default function RegisterPage() {
           <Button
             size="lg"
             type="submit"
-            className="mt-2 w-full"
+            className="mt-2 w-full bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 text-white"
             disabled={isSubmitting}
           >
             {isSubmitting && <LoaderCircle className="animate-spin" />}

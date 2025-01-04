@@ -22,7 +22,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function AppLayout() {
   return (
-    <main className="flex-grow flex items-center justify-center w-full px-14">
+    <main className="flex-grow flex items-center justify-center w-full px-14 py-16">
       <TopBar />
       <Outlet />
       <BottomMenu />
