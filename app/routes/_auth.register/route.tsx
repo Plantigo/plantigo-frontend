@@ -98,11 +98,11 @@ export default function RegisterPage() {
   }, [errors.root?.message]);
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md bg-white bg-opacity-80">
       <CardHeader>
-        <CardTitle className="text-3xl font-bold text-center flex justify-center gap-2 items-center">
+        <CardTitle className="text-2xl font-bold text-center flex flex-col justify-center items-center">
           <span>Register in</span>
-          <span className="flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 bg-clip-text text-transparent">
+          <span className="flex text-4xl items-center justify-center bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 bg-clip-text text-transparent pb-1">
             Plantigo <Leaf className="w-8 h-8 text-green-500" />
           </span>
         </CardTitle>

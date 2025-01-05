@@ -105,11 +105,11 @@ export default function LoginPage() {
   }, [errors.root?.message]);
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md bg-white bg-opacity-80">
       <CardHeader>
-        <CardTitle className="text-3xl font-bold text-center flex justify-center gap-2 items-center">
-          <span>Login to</span>
-          <span className="flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 bg-clip-text text-transparent">
+        <CardTitle className="text-2xl font-bold text-center flex flex-col justify-center items-center">
+          <span>Sign in</span>
+          <span className="text-4xl flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 bg-clip-text text-transparent pb-1">
             Plantigo <Leaf className="w-8 h-8 text-green-500" />
           </span>
         </CardTitle>

@@ -38,7 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <main className="flex flex-col min-h-screen bg-green-50 relative py-4">
+        <main className="flex flex-col min-h-screen bg-green-50 relative">
           {children}
           <Toaster />
           <ScrollRestoration />

@@ -1,4 +1,3 @@
-import { TopBar } from "@/components/top-bar";
 import { getUser } from "@/lib/get-user.server";
 import { requireAuth } from "@/lib/require-auth.server";
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
@@ -24,9 +23,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function AuthLayout() {
   return (
-    <div className="flex-grow flex items-center justify-center w-full px-6">
-      <TopBar />
-      <Outlet />
-    </div>
+    <main className="relative flex-grow flex items-center justify-center w-full h-screen px-6">
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-green-500 to-teal-500 opacity-50"></div>
+      <div className="relative z-10">
+        <Outlet />
+      </div>
+    </main>
   );
 }
