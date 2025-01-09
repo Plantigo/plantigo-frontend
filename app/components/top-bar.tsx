@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Leaf, PowerCircle } from "lucide-react";
 import {
   Dialog,
@@ -23,7 +23,7 @@ export function TopBar() {
   const [isModalOpen, setModalOpen] = useState(false);
   const { toast } = useToast();
   const fetcher = useFetcher();
-  const { user } = useUserData();
+  const [scrolled, setScrolled] = useState(false);
 
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
@@ -84,19 +84,53 @@ export function TopBar() {
     },
   ];
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 20;
+      setScrolled(isScrolled);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="fixed top-0 left-0 w-full bg-white shadow-md z-10">
-      <div className="bg-white shadow-sm py-1">
-        <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 transition-all duration-300 z-50 border-b border-gray-200
+          ${
+            scrolled
+              ? "bg-white/50 backdrop-blur-lg h-12"
+              : "bg-white/70 backdrop-blur-md h-16"
+          }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-center">
+          {/* Logo section */}
+          <div className="flex items-center space-x-2 overflow-hidden">
+            <span
+              className={`text-3xl bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 bg-clip-text text-transparent font-bold text-3xltransition-all duration-300
+              ${scrolled ? "opacity-0 w-0" : "opacity-100 w-auto"}`}
+            >
+              Plantigo
+            </span>
+            <Leaf
+              className={`h-6 w-6 text-emerald-500 flex-shrink-0 transition-transform duration-300
+              ${scrolled ? "transform scale-90" : ""}`}
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* <header className="fixed top-0 left-0 w-full z-10 ">
+        <div className="px-4 py-3 flex items-center justify-center">
           <Link to="/">
             <div className="flex items-center">
-              <span className="flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 bg-clip-text text-transparent font-bold text-xl">
-                Plantigo <Leaf className="w-6 h-6 text-green-500" />
+              <span className="flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 bg-clip-text text-transparent font-bold text-3xl">
+                Plantigo <Leaf className="w-8 h-8 text-green-500" />
               </span>
             </div>
           </Link>
 
-          {user?.email}
           <button
             className="flex items-center text-sm font-medium text-gray-600 hover:text-red-600 transition-colors"
             onClick={handleOpenModal}
@@ -105,7 +139,6 @@ export function TopBar() {
           </button>
         </div>
 
-        {/* Modal */}
         <Dialog open={isModalOpen} onOpenChange={setModalOpen}>
           <DialogContent>
             <DialogHeader>
@@ -153,7 +186,7 @@ export function TopBar() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
-    </header>
+      </header> */}
+    </>
   );
 }

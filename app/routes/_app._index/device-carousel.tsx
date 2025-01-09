@@ -92,9 +92,9 @@ export function DeviceCarousel({
                   </div>
                 </CarouselItem>
               ))
-            : devices.map((device) => (
+            : devices.map((device, index) => (
                 <CarouselItem
-                  key={device.id}
+                  key={index}
                   className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3"
                 >
                   <div className="p-1">
