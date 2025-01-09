@@ -2,7 +2,6 @@ import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
 import { DeviceCarousel } from "./device-carousel";
-import { PlantNotifications } from "./plant-notifications";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingOverlay } from "./loading-overlay";
 import { PlantDetails } from "./device-details";
@@ -84,7 +83,7 @@ export default function Dashboard() {
           </AlertDescription>
         </Alert>
       )}
-      <section className="w-full max-w-4xl mx-auto">
+      <section className="w-full">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold">Your Plants</h2>
           {/* <Button onClick={handleRefresh} disabled={isLoading}>
@@ -113,10 +112,10 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
-      <section className="w-full max-w-4xl mx-auto">
+      {/* <section className="w-full max-w-4xl mx-auto">
         <h2 className="text-2xl font-semibold mb-4">Plant Notifications</h2>
         <PlantNotifications />
-      </section>
+      </section> */}
 
       {isLoading && <LoadingOverlay message="Updating plant data..." />}
     </div>

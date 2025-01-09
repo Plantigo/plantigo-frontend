@@ -1,17 +1,25 @@
 import { Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { PlantNotification } from "@/types/plant-notification";
-import { NotificationIcon } from "./notification-icon";
 import { cn } from "@/lib/utils";
+import { PlantNotification } from "@/types/notification";
+import { NotificationIcon } from "./notification-icon";
 
 interface NotificationCardProps {
   notification: PlantNotification;
   className?: string;
 }
 
-export function NotificationCard({ notification, className }: NotificationCardProps) {
+export function NotificationCard({
+  notification,
+  className,
+}: NotificationCardProps) {
   return (
-    <Card className={cn("group hover:shadow-md transition-all duration-300", className)}>
+    <Card
+      className={cn(
+        "group hover:shadow-md transition-all duration-300",
+        className
+      )}
+    >
       <CardContent className="flex items-center p-4 gap-4">
         <div className="shrink-0">
           <NotificationIcon type={notification.type} />

@@ -8,6 +8,7 @@ export interface UserInfo {
   email: string;
   name: string;
   firstLogin: boolean;
+  picture?: string;
 }
 
 interface AuthStrategy {
