@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { login } from "../_auth/actions";
 import { commitSession, createUserSession } from "@/lib/sessions";
+import { Browser } from "@capacitor/browser";
+import { Capacitor } from "@capacitor/core";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -94,6 +96,15 @@ export default function LoginPage() {
 
   const googleLoginUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${googleClientId}&redirect_uri=${googleRedirectUri}&response_type=code&scope=openid%20email%20profile`;
 
+  const handleGoogleLogin = async () => {
+    const platform = Capacitor.getPlatform();
+    if (platform == "android" || platform == "ios") {
+      await Browser.open({ url: googleLoginUrl });
+    } else {
+      window.location.href = googleLoginUrl;
+    }
+  };
+
   useEffect(() => {
     if (errors.root?.message) {
       toast({
@@ -165,11 +176,14 @@ export default function LoginPage() {
         </Form>
         <div className="border-b w-full my-5"></div>
         <div className="flex flex-col gap-3">
-          <Button variant="outline" size="lg" className="w-full" asChild>
-            <a href={googleLoginUrl}>
-              <img className="w-6 h-6" src="google.svg" alt="google" />
-              Login with Google
-            </a>
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full"
+            onClick={handleGoogleLogin}
+          >
+            <img className="w-6 h-6" src="google.svg" alt="google" />
+            Login with Google
           </Button>
           <Button size="lg" variant="outline" className="w-full">
             <img className="w-6 h-6" src="apple.svg" alt="google" />
