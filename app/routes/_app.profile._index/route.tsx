@@ -65,7 +65,6 @@ export default function Profile() {
       title: "Logout",
       icon: LogOut,
       color: "bg-gray-100 text-gray-600",
-      route: "/logout",
       callback: () => {
         toast({
           title: "Logged Out",
@@ -79,23 +78,26 @@ export default function Profile() {
 
   return (
     <div className="pt-20 pb-24">
-      {/* User info section */}
-      <div className="flex items-center space-x-4 mb-8 bg-white p-4 rounded-xl shadow-sm">
-        <div className="relative">
-          <Avatar>
-            <AvatarImage src={user?.picture} alt="Profile picture" />
-            <AvatarFallback>
-              <UserCircle2 className="h-16 w-16 text-emerald-500" />
-            </AvatarFallback>
-          </Avatar>
-          <div className="absolute bottom-0 right-0 h-4 w-4 bg-emerald-500 rounded-full border-2 border-white"></div>
+      <Link to="/profile/configuration">
+        <div className="flex items-center space-x-4 mb-8 bg-white p-4 rounded-xl shadow-sm">
+          <div className="relative">
+            <Avatar>
+              <AvatarImage src={user?.picture} alt="Profile picture" />
+              <AvatarFallback>
+                <UserCircle2 className="h-16 w-16 text-emerald-500" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="absolute bottom-0 right-0 h-4 w-4 bg-emerald-500 rounded-full border-2 border-white"></div>
+          </div>
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-gray-900">
+              {user?.fullName ?? user?.email}
+            </h2>
+            <p className="text-sm text-gray-500">Plant Enthusiast</p>
+          </div>
+          <ChevronRight className="h-5 w-5 text-gray-400" />
         </div>
-        <div className="flex-1">
-          <h2 className="text-xl font-semibold text-gray-900">{user?.email}</h2>
-          <p className="text-sm text-gray-500">Plant Enthusiast</p>
-        </div>
-        <ChevronRight className="h-5 w-5 text-gray-400" />
-      </div>
+      </Link>
 
       {[1, 2].map((section) => (
         <div
