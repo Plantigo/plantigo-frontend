@@ -6,7 +6,7 @@ export function BottomMenu() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/60 backdrop-blur-lg border-t border-gray-200 rounded-t-2xl">
+      <nav className="fixed pb-6 pt-2 bottom-0 left-0 right-0 bg-white/60 backdrop-blur-lg border-t border-gray-200 rounded-t-2xl">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-around items-center h-16">
             {[
@@ -28,8 +28,8 @@ export function BottomMenu() {
                   : "text-gray-500"
               }`}
               >
-                <Icon className="h-6 w-6" />
-                <span className="text-xs">{label}</span>
+                <Icon className="h-8 w-8" />
+                <span className="text-sm">{label}</span>
                 {location.pathname === route && (
                   <span className="absolute -bottom-[1px] left-1/2 w-12 h-0.5 bg-emerald-500 -translate-x-1/2" />
                 )}
@@ -38,32 +38,6 @@ export function BottomMenu() {
           </div>
         </div>
       </nav>
-
-      {/* <footer className="fixed bottom-0 left-0 w-full bg-white z-10 rounded-t-2xl">
-        <nav className="bg-white border-t border-gray-200 rounded-t-2xl">
-          <div className="max-w-screen-xl mx-auto px-4">
-            <div className="flex justify-around">
-              <Link
-                to="/notifications"
-                className="flex flex-col items-center py-2"
-              >
-                <MessageSquareDot className="w-6 h-6 text-green-600" />
-                <span className="mt-1 text-xs text-gray-600">
-                  Notifications
-                </span>
-              </Link>
-              <Link to="/" className="flex flex-col items-center py-2">
-                <LeafIcon className="w-6 h-6 text-green-600" />
-                <span className="mt-1 text-xs text-gray-600">Plants</span>
-              </Link>
-              <Link to="/settings" className="flex flex-col items-center py-2">
-                <User className="w-6 h-6 text-green-600" />
-                <span className="mt-1 text-xs text-gray-600">Profile</span>
-              </Link>
-            </div>
-          </div>
-        </nav>
-      </footer> */}
     </>
   );
 }
