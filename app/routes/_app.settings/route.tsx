@@ -28,7 +28,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="w-full">
+    <div className="pt-10 w-full">
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
       <section className="mb-8">
         <div className="flex justify-between items-center mb-4">

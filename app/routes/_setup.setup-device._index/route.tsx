@@ -63,7 +63,6 @@ export default function SetupDevicePage() {
   const handleNextStep = () => setStep(step + 1);
   const handlePreviousStep = () => setStep(step - 1);
   const handleFinishSetup = () => {
-    // Handle device setup completion logic here
     console.log("Device Name:", deviceName);
     console.log("Plant Spicies:", comboBoxValue);
   };
@@ -76,7 +75,7 @@ export default function SetupDevicePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 pt-24">
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         {/* Logo & Welcome */}
         <div className="text-center space-y-2">
