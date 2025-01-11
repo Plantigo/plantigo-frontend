@@ -8,6 +8,7 @@ export interface UserInfo {
   email: string;
   name: string;
   firstLogin: boolean;
+  fullName?: string;
   picture?: string;
 }
 
@@ -43,6 +44,8 @@ class GoogleAuthStrategy implements AuthStrategy {
       email: data.email,
       name: data.username,
       firstLogin: data.first_login,
+      fullName: data.full_name,
+      picture: data.picture,
     };
   }
 }
