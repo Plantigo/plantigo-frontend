@@ -3,7 +3,6 @@ import { useUserData } from "@/hooks/useUserData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Wifi,
   Laptop,
   Tag,
   ChevronRight,
@@ -11,6 +10,9 @@ import {
   Leaf,
   Check,
   ChevronsUpDown,
+  Bluetooth,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { StepIndicator } from "./step-indicator";
 import { Link } from "@remix-run/react";
@@ -28,11 +30,40 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
+import { BleClient } from "@capacitor-community/bluetooth-le";
+
+const BLE_SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
 
 export default function SetupDevicePage() {
   let user = useUserData();
   const [step, setStep] = useState(1);
   const [deviceName, setDeviceName] = useState("");
+  const [bluetoothDevice, setBluetoothDevice] = useState<string | undefined>(
+    undefined
+  );
+
+  async function onBluetoothConnect() {
+    try {
+      await BleClient.initialize();
+      const device = await BleClient.requestDevice({
+        services: [BLE_SERVICE_UUID],
+      });
+
+      await BleClient.connect(device.deviceId, (deviceId) =>
+        console.log(`Device ${deviceId} disconnected`)
+      );
+      setBluetoothDevice(device?.name);
+      console.log("connected to device", device);
+
+      setTimeout(async () => {
+        await BleClient.disconnect(device.deviceId);
+        setBluetoothDevice(undefined);
+        console.log("disconnected from device", device);
+      }, 10000);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const [comboBoxOpen, setComboBoxOpen] = useState(false);
   const [comboBoxValue, setComboBoxValue] = useState("");
@@ -68,7 +99,7 @@ export default function SetupDevicePage() {
   };
 
   const steps = [
-    { number: 1, title: "WiFi", icon: Wifi },
+    { number: 1, title: "Bluetooth Setup", icon: Bluetooth },
     { number: 2, title: "Connect", icon: Laptop },
     { number: 3, title: "Plant Species", icon: Leaf },
     { number: 4, title: "Name", icon: Tag },
@@ -114,30 +145,52 @@ export default function SetupDevicePage() {
         <div className="space-y-6 pt-4">
           {step === 1 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-              <div className="space-y-3">
-                <h2 className="text-xl font-semibold">
-                  Connect to WiFi Network
-                </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  First, let&apos;s connect your device to your WiFi network.
+              <div className="space-y-2">
+                <div className="flex flex-col items-center justify-between">
+                  <h2 className="text-xl text-center pb-3 sm:text-2xl font-bold text-gray-900 dark:text-white">
+                    Connect with the device via Bluetooth
+                  </h2>
+                  {bluetoothDevice ? (
+                    <div className="flex items-center gap-2 pb-4 text-green-600 dark:text-green-500">
+                      <CheckCircle2 className="h-6 w-6" />
+                      <span className="text-lg font-bold">
+                        Connected with {bluetoothDevice}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center pb-4 gap-2 text-gray-500">
+                      <XCircle className="h-5 w-5" />
+                      <span className="text-sm font-medium">Not Connected</span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
+                  First, let&apos;s establish a Bluetooth connection with your
+                  device. Make sure your device is powered on, then click the
+                  button below to start the connection process.
                 </p>
               </div>
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <Button
                   size="lg"
                   className="w-full"
                   variant="secondary"
-                  onClick={() => (window.location.href = "wifi://")}
+                  onClick={() => onBluetoothConnect()}
+                  disabled={!!bluetoothDevice}
                 >
-                  <Wifi className="w-4 h-4 mr-2" />
-                  Open WiFi Settings
+                  <Bluetooth className="mr-2 h-4 w-4" />
+                  {bluetoothDevice
+                    ? "Device Connected"
+                    : "Connect Bluetooth Device"}
                 </Button>
                 <Button
                   size="lg"
-                  className="w-full bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 text-white"
+                  className="w-full"
                   onClick={handleNextStep}
+                  disabled={!bluetoothDevice}
                 >
-                  Next <ChevronRight className="w-4 h-4 ml-1" />
+                  Next Step
+                  <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
             </div>
