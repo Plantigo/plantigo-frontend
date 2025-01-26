@@ -16,6 +16,7 @@
     "@capacitor/browser": "^6.0.4",
     "@capacitor/core": "^6.2.0",
     "@capacitor/ios": "^6.2.0",
+    "@falconeta/capacitor-wifi-connect": "^6.1.1",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.4",

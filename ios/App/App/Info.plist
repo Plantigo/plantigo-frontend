@@ -53,5 +53,16 @@
 	<array>
 		<string>bluetooth-central</string>
 	</array>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+  <string>...</string>
+  <key>NSLocationAlwaysUsageDescription</key>
+  <string>...</string>
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>...</string>
+  <key>NSLocalNetworkUsageDescription</key>
+<string
+    >Potrzebujemy dostępu do informacji o sieci Wi-Fi, aby zapewnić działanie aplikacji.</string>
+<key>NEHotspotConfiguration</key>
+<true />
 </dict>
 </plist>

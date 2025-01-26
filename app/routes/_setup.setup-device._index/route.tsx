@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUserData } from "@/hooks/useUserData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import {
   Bluetooth,
   CheckCircle2,
   XCircle,
+  EyeOff,
+  Eye,
 } from "lucide-react";
 import { StepIndicator } from "./step-indicator";
 import { Link } from "@remix-run/react";
@@ -30,17 +32,57 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { BleClient } from "@capacitor-community/bluetooth-le";
+import {
+  BleClient,
+  BleDevice,
+  hexStringToDataView,
+} from "@capacitor-community/bluetooth-le";
+import { CapacitorWifiConnect } from "@falconeta/capacitor-wifi-connect";
+import { Capacitor } from "@capacitor/core";
+import {
+  splitDataIntoPackets,
+  START_BYTE,
+  END_BYTE,
+} from "@/lib/split-data-into-packets";
+import { useToast } from "@/hooks/use-toast";
 
 const BLE_SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
+const BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID =
+  "19b10001-e8f2-537e-4f6c-d104768a1214";
 
 export default function SetupDevicePage() {
   let user = useUserData();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(2);
   const [deviceName, setDeviceName] = useState("");
-  const [bluetoothDevice, setBluetoothDevice] = useState<string | undefined>(
+  const [bluetoothDevice, setBluetoothDevice] = useState<BleDevice | undefined>(
     undefined
   );
+  const [wifiSSID, setWifiSSID] = useState("");
+  const [wifiPassword, setWifiPassword] = useState("");
+  const [showWifiPassword, setShowWifiPassword] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    async function setSSID() {
+      if (Capacitor.getPlatform() === "web") return;
+
+      const { value } = await CapacitorWifiConnect.checkPermission();
+
+      console.log("Permission", value);
+
+      try {
+        const ssid = await CapacitorWifiConnect.getSSIDs();
+        console.log("SSID", ssid);
+        // setWifiSSID(ssid.value);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    if (step === 2) {
+      setSSID();
+    }
+  }, [step]);
 
   async function onBluetoothConnect() {
     try {
@@ -49,17 +91,24 @@ export default function SetupDevicePage() {
         services: [BLE_SERVICE_UUID],
       });
 
-      await BleClient.connect(device.deviceId, (deviceId) =>
-        console.log(`Device ${deviceId} disconnected`)
-      );
-      setBluetoothDevice(device?.name);
+      await BleClient.connect(device.deviceId, (deviceId) => {
+        console.log(`Device ${deviceId} disconnected`);
+        setBluetoothDevice(undefined);
+        toast({
+          title: "Bluetooth connection lost",
+          description: "The device has been disconnected. Please try again.",
+          variant: "destructive",
+        });
+        setStep(1);
+      });
+      setBluetoothDevice(device);
       console.log("connected to device", device);
 
-      setTimeout(async () => {
-        await BleClient.disconnect(device.deviceId);
-        setBluetoothDevice(undefined);
-        console.log("disconnected from device", device);
-      }, 10000);
+      // setTimeout(async () => {
+      //   await BleClient.disconnect(device.deviceId);
+      //   setBluetoothDevice(undefined);
+      //   console.log("disconnected from device", device);
+      // }, 10000);
     } catch (error) {
       console.error(error);
     }
@@ -90,6 +139,22 @@ export default function SetupDevicePage() {
       label: "Daisy",
     },
   ];
+
+  async function sendWifiCredentialsViaBLE() {
+    if (!bluetoothDevice || !wifiSSID || !wifiPassword) return;
+    const data = `ssid=${wifiSSID},password=${wifiPassword}`;
+    const packetsHex = splitDataIntoPackets(data, START_BYTE, END_BYTE);
+    console.log("Packets", packetsHex);
+
+    packetsHex.forEach(async (packetHex) => {
+      await BleClient.write(
+        bluetoothDevice.deviceId,
+        BLE_SERVICE_UUID,
+        BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID,
+        hexStringToDataView(packetHex)
+      );
+    });
+  }
 
   const handleNextStep = () => setStep(step + 1);
   const handlePreviousStep = () => setStep(step - 1);
@@ -154,7 +219,7 @@ export default function SetupDevicePage() {
                     <div className="flex items-center gap-2 pb-4 text-green-600 dark:text-green-500">
                       <CheckCircle2 className="h-6 w-6" />
                       <span className="text-lg font-bold">
-                        Connected with {bluetoothDevice}
+                        Connected with {bluetoothDevice.name}
                       </span>
                     </div>
                   ) : (
@@ -208,11 +273,36 @@ export default function SetupDevicePage() {
                   />
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Open your browser and navigate to{" "}
-                  <code className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-sm">
-                    192.168.1.1
-                  </code>
+                  You need to provide the WiFi SSID and password to set up the
+                  device connection.
                 </p>
+                <Input
+                  type="text"
+                  value={wifiSSID}
+                  onChange={(e) => setWifiSSID(e.target.value)}
+                  placeholder="Enter WiFi SSID"
+                  className="w-full"
+                />
+                <div className="relative">
+                  <Input
+                    type={showWifiPassword ? "text" : "password"}
+                    value={wifiPassword}
+                    onChange={(e) => setWifiPassword(e.target.value)}
+                    placeholder="Enter WiFi Password"
+                    className="w-full pr-10"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2"
+                    onClick={() => setShowWifiPassword(!showWifiPassword)}
+                  >
+                    {showWifiPassword ? (
+                      <EyeOff className="text-muted-foreground hover:text-primary" />
+                    ) : (
+                      <Eye className="text-muted-foreground hover:text-primary" />
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="space-y-3">
                 <Button
@@ -226,7 +316,8 @@ export default function SetupDevicePage() {
                 <Button
                   size="lg"
                   className="w-full bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 text-white"
-                  onClick={handleNextStep}
+                  onClick={() => sendWifiCredentialsViaBLE()}
+                  disabled={!wifiSSID.trim() || !wifiPassword.trim()}
                 >
                   Next <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
