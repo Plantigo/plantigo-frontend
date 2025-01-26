@@ -45,6 +45,7 @@ import {
   END_BYTE,
 } from "@/lib/split-data-into-packets";
 import { useToast } from "@/hooks/use-toast";
+import SsidPlugin from "@/lib/capacitor/ssid-plugin";
 
 const BLE_SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
 const BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID =
@@ -66,17 +67,8 @@ export default function SetupDevicePage() {
     async function setSSID() {
       if (Capacitor.getPlatform() === "web") return;
 
-      const { value } = await CapacitorWifiConnect.checkPermission();
-
-      console.log("Permission", value);
-
-      try {
-        const ssid = await CapacitorWifiConnect.getSSIDs();
-        console.log("SSID", ssid);
-        // setWifiSSID(ssid.value);
-      } catch (error) {
-        console.error(error);
-      }
+      const { ssid } = await SsidPlugin.getSSID();
+      console.log("SSID:", ssid);
     }
 
     if (step === 2) {
