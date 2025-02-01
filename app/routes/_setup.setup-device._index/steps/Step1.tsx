@@ -1,37 +1,26 @@
 import { Button } from "@/components/ui/button";
-import { BleClient, BleDevice } from "@capacitor-community/bluetooth-le";
+import { BleClient } from "@capacitor-community/bluetooth-le";
 import { Bluetooth, CheckCircle2, XCircle, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
 import { BLE_SERVICE_UUID } from "../route";
-import { useNavigate } from "@remix-run/react";
 import { useToast } from "@/hooks/use-toast";
+import { useBleDeviceStore } from "@/stores/ble-device.store";
 
 interface Step1Props {
   handleNextStep: () => void;
 }
 
 export default function Step1({ handleNextStep }: Step1Props) {
-  const [bluetoothDevice, setBluetoothDevice] = useState<BleDevice | undefined>(
-    undefined
-  );
-  const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (!bluetoothDevice) {
-      navigate("?bleDeviceId=");
-    }
-  }, [bluetoothDevice, navigate]);
+  const { bleDevice, setBleDevice } = useBleDeviceStore();
 
   function handleBleDisconnect(deviceId: string) {
     console.log(`Device ${deviceId} disconnected`);
-    navigate("?bleDeviceId=");
     toast({
       title: "Device Disconnected",
       description: `Bluetooth connection with device lost. Please try again.`,
       variant: "destructive",
     });
-    setBluetoothDevice(undefined);
+    setBleDevice(null);
   }
 
   async function onBluetoothConnect() {
@@ -45,8 +34,7 @@ export default function Step1({ handleNextStep }: Step1Props) {
         handleBleDisconnect(deviceId)
       );
 
-      setBluetoothDevice(device);
-      navigate("?bleDeviceId=" + device.deviceId);
+      setBleDevice(device);
       console.log("connected to device", device);
     } catch (error) {
       console.error(error);
@@ -60,11 +48,11 @@ export default function Step1({ handleNextStep }: Step1Props) {
           <h2 className="text-xl text-center pb-3 sm:text-2xl font-bold text-gray-900 dark:text-white">
             Connect with the device via Bluetooth
           </h2>
-          {bluetoothDevice ? (
+          {bleDevice ? (
             <div className="flex items-center gap-2 pb-4 text-green-600 dark:text-green-500">
               <CheckCircle2 className="h-6 w-6" />
               <span className="text-lg font-bold">
-                Connected with {bluetoothDevice.name}
+                Connected with {bleDevice.name}
               </span>
             </div>
           ) : (
@@ -86,16 +74,16 @@ export default function Step1({ handleNextStep }: Step1Props) {
           className="w-full"
           variant="secondary"
           onClick={() => onBluetoothConnect()}
-          disabled={!!bluetoothDevice}
+          disabled={!!bleDevice}
         >
           <Bluetooth className="mr-2 h-4 w-4" />
-          {bluetoothDevice ? "Device Connected" : "Connect Bluetooth Device"}
+          {bleDevice ? "Device Connected" : "Connect Bluetooth Device"}
         </Button>
         <Button
           size="lg"
           className="w-full"
           onClick={handleNextStep}
-          disabled={!bluetoothDevice}
+          disabled={!bleDevice}
         >
           Next Step
           <ChevronRight className="ml-2 h-4 w-4" />

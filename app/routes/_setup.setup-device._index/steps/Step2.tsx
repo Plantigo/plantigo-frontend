@@ -15,7 +15,7 @@ import {
   BLE_SERVICE_UUID,
   BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID,
 } from "../route";
-import { useSearchParams } from "@remix-run/react";
+import { useBleDeviceStore } from "@/stores/ble-device.store";
 
 interface Step2Props {
   handleNextStep: () => void;
@@ -29,19 +29,16 @@ export default function Step2({
   const [wifiSSID, setWifiSSID] = useState("");
   const [wifiPassword, setWifiPassword] = useState("");
   const [showWifiPassword, setShowWifiPassword] = useState(false);
-  const [searchParams] = useSearchParams();
-  const bleDeviceId = searchParams.get("bleDeviceId");
-  console.log("bleDeviceId", bleDeviceId);
+  const { bleDevice } = useBleDeviceStore();
 
   async function sendWifiCredentialsViaBLE() {
-    if (!bleDeviceId || !wifiSSID || !wifiPassword) return;
+    if (!bleDevice || !wifiSSID || !wifiPassword) return;
     const data = `ssid=${wifiSSID},password=${wifiPassword}`;
     const packetsHex = splitDataIntoPackets(data, START_BYTE, END_BYTE);
-    console.log("Packets", packetsHex);
 
     packetsHex.forEach(async (packetHex) => {
       await BleClient.write(
-        bleDeviceId,
+        bleDevice.deviceId,
         BLE_SERVICE_UUID,
         BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID,
         hexStringToDataView(packetHex)
