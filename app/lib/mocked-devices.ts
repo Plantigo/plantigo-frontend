@@ -23,7 +23,7 @@ export const devices: Device[] = [
     isConnected: true,
   },
   {
-    id: "00:0A:E6:3E:FD:E1",
+    id: "00:0A:E6:3E:FD:E2",
     name: "Device 2",
     batteryLevel: 45,
     plantName: "Ficus",
@@ -34,7 +34,7 @@ export const devices: Device[] = [
     isConnected: true,
   },
   {
-    id: "00:0A:E6:3E:FD:E1",
+    id: "00:0A:E6:3E:FD:E3",
     name: "Device 3",
     batteryLevel: 20,
     plantName: "Cactus",
@@ -45,7 +45,7 @@ export const devices: Device[] = [
     isConnected: true,
   },
   {
-    id: "00:0A:E6:3E:FD:E1",
+    id: "00:0A:E6:3E:FD:E4",
     name: "Device 4",
     batteryLevel: 70,
     plantName: "Orchid",
@@ -56,7 +56,7 @@ export const devices: Device[] = [
     isConnected: true,
   },
   {
-    id: "00:0A:E6:3E:FD:E1",
+    id: "00:0A:E6:3E:FD:E5",
     name: "Device 5",
     batteryLevel: 10,
     plantName: "Succulent",

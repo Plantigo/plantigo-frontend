@@ -26,10 +26,10 @@ export default function Step2({
   handleNextStep,
   handlePreviousStep,
 }: Step2Props) {
-  const [wifiSSID, setWifiSSID] = useState("");
-  const [wifiPassword, setWifiPassword] = useState("");
+  const [wifiSSID, setWifiSSID] = useState("Orange_Swiatlowod_E4C0_2.4GHz");
+  const [wifiPassword, setWifiPassword] = useState("5EvLo5Ux6rs9HGzjna");
   const [showWifiPassword, setShowWifiPassword] = useState(false);
-  const { bleDevice } = useBleDeviceStore();
+  const { bleDevice, setWifiConnected } = useBleDeviceStore();
 
   async function sendWifiCredentialsViaBLE() {
     if (!bleDevice || !wifiSSID || !wifiPassword) return;
@@ -44,6 +44,18 @@ export default function Step2({
         hexStringToDataView(packetHex)
       );
     });
+
+    const result = await BleClient.read(
+      bleDevice.deviceId,
+      BLE_SERVICE_UUID,
+      BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID
+    );
+
+    console.log("wifi conn status", result.getUint8(0));
+    if (result.getUint8(0) === 1) {
+      setWifiConnected(true);
+      // handleNextStep();
+    }
   }
 
   return (

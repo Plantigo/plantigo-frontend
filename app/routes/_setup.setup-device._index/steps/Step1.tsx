@@ -11,15 +11,17 @@ interface Step1Props {
 
 export default function Step1({ handleNextStep }: Step1Props) {
   const { toast } = useToast();
-  const { bleDevice, setBleDevice } = useBleDeviceStore();
+  const { bleDevice, setBleDevice, wifiConnected } = useBleDeviceStore();
 
-  function handleBleDisconnect(deviceId: string) {
+  function handleBleDisconnect(deviceId: string, isWifiConnected: boolean) {
     console.log(`Device ${deviceId} disconnected`);
-    toast({
-      title: "Device Disconnected",
-      description: `Bluetooth connection with device lost. Please try again.`,
-      variant: "destructive",
-    });
+    if (!isWifiConnected) {
+      toast({
+        title: "Device Disconnected",
+        description: `Bluetooth connection with device lost. Please try again.`,
+        variant: "destructive",
+      });
+    }
     setBleDevice(null);
   }
 
@@ -31,7 +33,7 @@ export default function Step1({ handleNextStep }: Step1Props) {
       });
 
       await BleClient.connect(device.deviceId, (deviceId) =>
-        handleBleDisconnect(deviceId)
+        handleBleDisconnect(deviceId, wifiConnected)
       );
 
       setBleDevice(device);

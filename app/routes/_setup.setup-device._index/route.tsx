@@ -14,7 +14,7 @@ export const BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID =
 
 export default function SetupDevicePage() {
   let user = useUserData();
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(1);
 
   const handleNextStep = () => setStep(step + 1);
   const handlePreviousStep = () => setStep(step - 1);
