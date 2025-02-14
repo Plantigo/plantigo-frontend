@@ -1,75 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUserData } from "@/hooks/useUserData";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Wifi,
-  Laptop,
-  Tag,
-  ChevronRight,
-  ChevronLeft,
-  Leaf,
-  Check,
-  ChevronsUpDown,
-} from "lucide-react";
-import { StepIndicator } from "./step-indicator";
 import { Link } from "@remix-run/react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { cn } from "@/lib/utils";
+import { StepIndicator } from "./step-indicator";
+import Step2 from "./steps/Step2";
+import { Bluetooth, Leaf, Tag, Wifi } from "lucide-react";
+import Step1 from "./steps/Step1";
+import Step3 from "./steps/Step3";
+import Step4 from "./steps/Step4";
+import { useBleDeviceStore } from "@/stores/ble-device.store";
+
+export const BLE_SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
+export const BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID =
+  "19b10001-e8f2-537e-4f6c-d104768a1214";
 
 export default function SetupDevicePage() {
   let user = useUserData();
   const [step, setStep] = useState(1);
-  const [deviceName, setDeviceName] = useState("");
+  const { bleDevice, setBleDevice, wifiConnected } = useBleDeviceStore();
 
-  const [comboBoxOpen, setComboBoxOpen] = useState(false);
-  const [comboBoxValue, setComboBoxValue] = useState("");
-
-  const plantSpicies = [
-    {
-      value: "rose",
-      label: "Rose",
-    },
-    {
-      value: "tulip",
-      label: "Tulip",
-    },
-    {
-      value: "orchid",
-      label: "Orchid",
-    },
-    {
-      value: "sunflower",
-      label: "Sunflower",
-    },
-    {
-      value: "daisy",
-      label: "Daisy",
-    },
-  ];
+  useEffect(() => {
+    if (bleDevice === null && !wifiConnected) {
+      setStep(1);
+    }
+  }, [bleDevice, wifiConnected]);
 
   const handleNextStep = () => setStep(step + 1);
   const handlePreviousStep = () => setStep(step - 1);
-  const handleFinishSetup = () => {
-    console.log("Device Name:", deviceName);
-    console.log("Plant Spicies:", comboBoxValue);
-  };
 
   const steps = [
-    { number: 1, title: "WiFi", icon: Wifi },
-    { number: 2, title: "Connect", icon: Laptop },
+    { number: 1, title: "Bluetooth Setup", icon: Bluetooth },
+    { number: 2, title: "Connect to Wifi", icon: Wifi },
     { number: 3, title: "Plant Species", icon: Leaf },
     { number: 4, title: "Name", icon: Tag },
   ];
@@ -112,208 +72,23 @@ export default function SetupDevicePage() {
 
         {/* Content Sections */}
         <div className="space-y-6 pt-4">
-          {step === 1 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-              <div className="space-y-3">
-                <h2 className="text-xl font-semibold">
-                  Connect to WiFi Network
-                </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  First, let&apos;s connect your device to your WiFi network.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <Button
-                  size="lg"
-                  className="w-full"
-                  variant="secondary"
-                  onClick={() => (window.location.href = "wifi://")}
-                >
-                  <Wifi className="w-4 h-4 mr-2" />
-                  Open WiFi Settings
-                </Button>
-                <Button
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 text-white"
-                  onClick={handleNextStep}
-                >
-                  Next <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            </div>
-          )}
+          {step === 1 && <Step1 handleNextStep={handleNextStep} />}
 
           {step === 2 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-              <div className="space-y-3">
-                <h2 className="text-xl font-semibold">Connect Your Device</h2>
-                <div className="aspect-video relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-                  <img
-                    src="/device-connect.jpg"
-                    alt="Device Connect"
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Open your browser and navigate to{" "}
-                  <code className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-sm">
-                    192.168.1.1
-                  </code>
-                </p>
-              </div>
-              <div className="space-y-3">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full"
-                  onClick={handlePreviousStep}
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" /> Back
-                </Button>
-                <Button
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 text-white"
-                  onClick={handleNextStep}
-                >
-                  Next <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            </div>
+            <Step2
+              handleNextStep={handleNextStep}
+              handlePreviousStep={handlePreviousStep}
+            />
           )}
 
           {step === 3 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-              <div className="space-y-3">
-                <h2 className="text-xl font-semibold">Set Plant Species</h2>
-                <div className="aspect-video relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-                  <img
-                    src="/species-step.jpg"
-                    alt="Species Step"
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <Popover open={comboBoxOpen} onOpenChange={setComboBoxOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      size="lg"
-                      aria-expanded={comboBoxOpen}
-                      className="w-full justify-between"
-                    >
-                      {comboBoxValue
-                        ? plantSpicies.find(
-                            (framework) => framework.value === comboBoxValue
-                          )?.label
-                        : "Select plant..."}
-                      <ChevronsUpDown className="opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[345px] sm:w-[415px] p-0">
-                    <Command>
-                      <CommandInput
-                        placeholder="Search plant..."
-                        className="h-9"
-                      />
-                      <CommandList>
-                        <CommandEmpty>No plant spicies found.</CommandEmpty>
-                        <CommandGroup>
-                          {plantSpicies.map((spicies) => (
-                            <CommandItem
-                              key={spicies.value}
-                              value={spicies.value}
-                              onSelect={(currentValue) => {
-                                setComboBoxValue(
-                                  currentValue === comboBoxValue
-                                    ? ""
-                                    : currentValue
-                                );
-                                setDeviceName(
-                                  `${currentValue.toLowerCase()}_device`
-                                );
-                                setComboBoxOpen(false);
-                              }}
-                            >
-                              {spicies.label}
-                              <Check
-                                className={cn(
-                                  "ml-auto",
-                                  comboBoxValue === spicies.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="space-y-3">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full"
-                  onClick={handlePreviousStep}
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" /> Back
-                </Button>
-                <Button
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 text-white"
-                  onClick={handleNextStep}
-                  disabled={!comboBoxValue}
-                >
-                  Next <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            </div>
+            <Step3
+              handleNextStep={handleNextStep}
+              handlePreviousStep={handlePreviousStep}
+            />
           )}
 
-          {step === 4 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-              <div className="space-y-3">
-                <h2 className="text-xl font-semibold">Name Your Device</h2>
-                <div className="aspect-video relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-                  <img
-                    src="/device-setup-complete.jpg"
-                    alt="Device Setup Complete"
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <Input
-                  type="text"
-                  value={deviceName}
-                  onChange={(e) => setDeviceName(e.target.value)}
-                  placeholder="Enter device name"
-                  className="w-full"
-                />
-              </div>
-              <div className="space-y-3">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full"
-                  onClick={handlePreviousStep}
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" /> Back
-                </Button>
-                <Button
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 text-white"
-                  onClick={handleFinishSetup}
-                  disabled={!deviceName.trim()}
-                  asChild
-                >
-                  <Link to="/setup-device/success">
-                    Complete Setup <Check className="w-4 h-4 ml-1" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          )}
+          {step === 4 && <Step4 handlePreviousStep={handlePreviousStep} />}
         </div>
       </div>
     </div>
