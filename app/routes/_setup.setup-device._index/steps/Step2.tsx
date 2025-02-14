@@ -26,8 +26,8 @@ export default function Step2({
   handleNextStep,
   handlePreviousStep,
 }: Step2Props) {
-  const [wifiSSID, setWifiSSID] = useState("Orange_Swiatlowod_E4C0_2.4GHz");
-  const [wifiPassword, setWifiPassword] = useState("5EvLo5Ux6rs9HGzjna");
+  const [wifiSSID, setWifiSSID] = useState("");
+  const [wifiPassword, setWifiPassword] = useState("");
   const [showWifiPassword, setShowWifiPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { bleDevice, setWifiConnected, wifiConnected } = useBleDeviceStore();
