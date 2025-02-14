@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUserData } from "@/hooks/useUserData";
 import { Link } from "@remix-run/react";
 import { StepIndicator } from "./step-indicator";
@@ -7,6 +7,7 @@ import { Bluetooth, Leaf, Tag, Wifi } from "lucide-react";
 import Step1 from "./steps/Step1";
 import Step3 from "./steps/Step3";
 import Step4 from "./steps/Step4";
+import { useBleDeviceStore } from "@/stores/ble-device.store";
 
 export const BLE_SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
 export const BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID =
@@ -15,6 +16,13 @@ export const BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID =
 export default function SetupDevicePage() {
   let user = useUserData();
   const [step, setStep] = useState(1);
+  const { bleDevice, setBleDevice, wifiConnected } = useBleDeviceStore();
+
+  useEffect(() => {
+    if (bleDevice === null && !wifiConnected) {
+      setStep(1);
+    }
+  }, [bleDevice, wifiConnected]);
 
   const handleNextStep = () => setStep(step + 1);
   const handlePreviousStep = () => setStep(step - 1);

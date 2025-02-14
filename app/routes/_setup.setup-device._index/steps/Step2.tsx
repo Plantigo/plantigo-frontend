@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import {
   END_BYTE,
@@ -29,32 +29,60 @@ export default function Step2({
   const [wifiSSID, setWifiSSID] = useState("Orange_Swiatlowod_E4C0_2.4GHz");
   const [wifiPassword, setWifiPassword] = useState("5EvLo5Ux6rs9HGzjna");
   const [showWifiPassword, setShowWifiPassword] = useState(false);
-  const { bleDevice, setWifiConnected } = useBleDeviceStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const { bleDevice, setWifiConnected, wifiConnected } = useBleDeviceStore();
 
   async function sendWifiCredentialsViaBLE() {
     if (!bleDevice || !wifiSSID || !wifiPassword) return;
-    const data = `ssid=${wifiSSID},password=${wifiPassword}`;
-    const packetsHex = splitDataIntoPackets(data, START_BYTE, END_BYTE);
+    setWifiConnected(false);
+    setIsLoading(true);
 
-    packetsHex.forEach(async (packetHex) => {
-      await BleClient.write(
+    try {
+      await BleClient.startNotifications(
         bleDevice.deviceId,
         BLE_SERVICE_UUID,
         BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID,
-        hexStringToDataView(packetHex)
+        async (value) => {
+          // This callback will be called when notification is received
+          const data = new Uint8Array(value.buffer);
+          console.log("Received notification:", data.toString());
+          if (data.length === 2 && data[0] === 79 && data[1] === 75) {
+            console.log("Received OK notification");
+            setWifiConnected(true);
+            setIsLoading(false);
+            // Stop notifications after receiving OK
+            await BleClient.stopNotifications(
+              bleDevice.deviceId,
+              BLE_SERVICE_UUID,
+              BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID
+            );
+            // handleNextStep();
+          }
+        }
       );
-    });
 
-    const result = await BleClient.read(
-      bleDevice.deviceId,
-      BLE_SERVICE_UUID,
-      BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID
-    );
+      const data = `ssid=${wifiSSID},password=${wifiPassword}`;
+      const packetsHex = splitDataIntoPackets(data, START_BYTE, END_BYTE);
 
-    console.log("wifi conn status", result.getUint8(0));
-    if (result.getUint8(0) === 1) {
-      setWifiConnected(true);
-      // handleNextStep();
+      // Use for...of instead of forEach to ensure sequential execution
+      for (const packetHex of packetsHex) {
+        await BleClient.write(
+          bleDevice.deviceId,
+          BLE_SERVICE_UUID,
+          BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID,
+          hexStringToDataView(packetHex)
+        );
+      }
+    } catch (error) {
+      console.error("BLE error:", error);
+      setWifiConnected(false);
+      setIsLoading(false);
+      // Stop notifications if there's an error
+      await BleClient.stopNotifications(
+        bleDevice.deviceId,
+        BLE_SERVICE_UUID,
+        BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID
+      );
     }
   }
 
@@ -107,16 +135,35 @@ export default function Step2({
           variant="outline"
           className="w-full"
           onClick={handlePreviousStep}
+          disabled={wifiConnected}
         >
           <ChevronLeft className="w-4 h-4 mr-1" /> Back
         </Button>
         <Button
           size="lg"
           className="w-full bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 text-white"
-          onClick={() => sendWifiCredentialsViaBLE()}
-          disabled={!wifiSSID.trim() || !wifiPassword.trim()}
+          onClick={() =>
+            wifiConnected ? handleNextStep() : sendWifiCredentialsViaBLE()
+          }
+          disabled={!wifiSSID.trim() || !wifiPassword.trim() || isLoading}
         >
-          Next <ChevronRight className="w-4 h-4 ml-1" />
+          {wifiConnected ? (
+            <>
+              Connected, go next <ChevronRight className="w-4 h-4 ml-1" />
+            </>
+          ) : (
+            <>
+              {!isLoading ? (
+                <>
+                  Next <ChevronRight className="w-4 h-4 ml-1" />
+                </>
+              ) : (
+                <>
+                  Connecting <Loader2 className="w-4 h-4 ml-1 animate-spin" />
+                </>
+              )}
+            </>
+          )}
         </Button>
       </div>
     </div>

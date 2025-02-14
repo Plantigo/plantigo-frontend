@@ -13,8 +13,8 @@ export default function Step1({ handleNextStep }: Step1Props) {
   const { toast } = useToast();
   const { bleDevice, setBleDevice, wifiConnected } = useBleDeviceStore();
 
-  function handleBleDisconnect(deviceId: string, isWifiConnected: boolean) {
-    console.log(`Device ${deviceId} disconnected`);
+  function handleBleDisconnect(deviceId: string) {
+    const isWifiConnected = useBleDeviceStore.getState().wifiConnected;
     if (!isWifiConnected) {
       toast({
         title: "Device Disconnected",
@@ -33,7 +33,7 @@ export default function Step1({ handleNextStep }: Step1Props) {
       });
 
       await BleClient.connect(device.deviceId, (deviceId) =>
-        handleBleDisconnect(deviceId, wifiConnected)
+        handleBleDisconnect(deviceId)
       );
 
       setBleDevice(device);
