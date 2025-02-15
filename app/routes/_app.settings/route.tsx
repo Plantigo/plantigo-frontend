@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wifi, Battery, Trash2, Plus } from "lucide-react";
+import { Wifi, Trash2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { RenameDeviceDialog } from "./rename-device-dialog";
@@ -10,107 +10,45 @@ import {
   useSearchParams,
   useFetcher,
 } from "@remix-run/react";
-import { API_BASE_URL } from "@/lib/env.server";
-import { json, LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
-import { getUserSession } from "@/lib/sessions";
+import { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { useToast } from "@/hooks/use-toast";
 import React from "react";
+import { Device, deviceActions } from "@/actions/devices";
+import { PaginatedResponse } from "@/lib/api-client";
 
-interface Device {
-  uuid: string;
-  name: string;
-  mac_address: string;
-  is_active: boolean;
-  user: number;
-}
-
-interface PaginatedResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
-
-interface RenameResponse {
+interface RenameResponse extends Device {
   error?: string;
-  id?: number;
-  name?: string;
-  mac_address?: string;
-  is_active?: boolean;
-  user?: number;
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getUserSession(request);
-  const accessToken = session.get("accessToken");
-  if (!accessToken) {
-    throw new Response("Unauthorized", { status: 401 });
-  }
-
-  const url = new URL(request.url);
-  const page = url.searchParams.get("page") || "1";
-
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/v1/devices?page=${page}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Response("Failed to fetch devices", {
-        status: response.status,
-      });
-    }
-
-    const data: PaginatedResponse<Device> = await response.json();
-    return json(data);
+    const url = new URL(request.url);
+    const page = url.searchParams.get("page") || "1";
+    const data = await deviceActions.getAll(request, page);
+    return data;
   } catch (error) {
     console.error("Error fetching devices:", error);
-    throw new Response("Failed to fetch devices", { status: 500 });
+    throw error;
   }
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const session = await getUserSession(request);
-  const accessToken = session.get("accessToken");
-
-  if (!accessToken) {
-    throw new Response("Unauthorized", { status: 401 });
-  }
-
   const formData = await request.formData();
   const uuid = formData.get("uuid");
   const name = formData.get("name");
 
   if (!uuid || !name) {
-    return json({ error: "Missing required fields" }, { status: 400 });
+    return { error: "Missing required fields" };
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/devices/${uuid}/`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name }),
+    const updatedDevice = await deviceActions.update(request, uuid.toString(), {
+      name: name.toString(),
     });
-
-    if (!response.ok) {
-      throw new Response("Failed to rename device", {
-        status: response.status,
-      });
-    }
-
-    const updatedDevice = await response.json();
-    return json(updatedDevice);
+    return updatedDevice;
   } catch (error) {
     console.error("Error renaming device:", error);
-    throw new Response("Failed to rename device", { status: 500 });
+    throw error;
   }
 }
 
@@ -122,6 +60,16 @@ export default function SettingsPage() {
   const currentPage = Number(searchParams.get("page")) || 1;
   const fetcher = useFetcher<RenameResponse>();
   const { toast } = useToast();
+
+  const getPageFromUrl = (url: string | null) => {
+    if (!url) return null;
+    try {
+      return new URL(url).searchParams.get("page");
+    } catch (e) {
+      console.error("Invalid URL:", url);
+      return null;
+    }
+  };
 
   const handleRename = (newName: string) => {
     if (!currentDevice || typeof currentDevice.uuid === "undefined") {
@@ -246,15 +194,7 @@ export default function SettingsPage() {
               )}
             >
               <Link
-                to={
-                  data.previous
-                    ? `?page=${
-                        Number(
-                          new URL(data.previous).searchParams.get("page")
-                        ) || 1
-                      }`
-                    : "#"
-                }
+                to={`?page=${getPageFromUrl(data.previous) || 1}`}
                 prefetch="intent"
               >
                 ← Previous
@@ -276,13 +216,7 @@ export default function SettingsPage() {
               )}
             >
               <Link
-                to={
-                  data.next
-                    ? `?page=${Number(
-                        new URL(data.next).searchParams.get("page")
-                      )}`
-                    : "#"
-                }
+                to={`?page=${getPageFromUrl(data.next) || currentPage}`}
                 prefetch="intent"
               >
                 Next →

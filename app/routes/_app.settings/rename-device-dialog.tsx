@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,12 @@ export function RenameDeviceDialog({
 }: RenameDeviceDialogProps) {
   const [newName, setNewName] = useState(currentName);
 
+  useEffect(() => {
+    if (isOpen) {
+      setNewName(currentName);
+    }
+  }, [isOpen, currentName]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onRename(newName);
@@ -47,6 +53,8 @@ export function RenameDeviceDialog({
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 className="col-span-3"
+                placeholder="Enter device name"
+                autoFocus
               />
             </div>
           </div>
