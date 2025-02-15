@@ -12,9 +12,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Device, devices } from "@/lib/mocked-devices";
+import { Device } from "@/actions/devices";
+import { useLoaderData } from "@remix-run/react";
+import { PaginatedResponse } from "@/lib/api-client";
 
 export default function Dashboard() {
+  const { results: devices } = useLoaderData<PaginatedResponse<Device>>();
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -38,26 +41,12 @@ export default function Dashboard() {
     }, 1000);
   }, [toast]);
 
-  const mockFetchDevices = (): Promise<Device[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(devices);
-      }, 500);
-    });
-  };
+  const connectionIssues = devices.filter((device) => !device.is_active);
+  const hasIssues = connectionIssues.length > 0;
 
-  const connectionIssues = devices.filter((device) => !device.isConnected);
-  const lowBatteryDevices = devices.filter(
-    (device) => device.batteryLevel < 25
-  );
-  const hasIssues = connectionIssues.length > 0 || lowBatteryDevices.length > 0;
-
-  const issueDetails = [
-    ...connectionIssues.map((device) => `${device.name}: Not connected`),
-    ...lowBatteryDevices.map(
-      (device) => `${device.name}: Low battery (${device.batteryLevel}%)`
-    ),
-  ].join("\n");
+  const issueDetails = connectionIssues
+    .map((device) => `${device.name}: Not connected`)
+    .join("\n");
 
   return (
     <div className="flex flex-col gap-8">
@@ -86,21 +75,14 @@ export default function Dashboard() {
       <section className="w-full">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold">Your Plants</h2>
-          {/* <Button onClick={handleRefresh} disabled={isLoading}>
-            {isLoading ? "Refreshing..." : "Refresh Data"}
-          </Button> */}
         </div>
-        <DeviceCarousel
-          devices={devices}
-          onDeviceSelect={handleDeviceSelect}
-          fetchDevices={mockFetchDevices}
-        />
+        <DeviceCarousel devices={devices} onDeviceSelect={handleDeviceSelect} />
       </section>
 
       <AnimatePresence mode="wait">
         {selectedDevice && (
           <motion.section
-            key={selectedDevice.id}
+            key={selectedDevice.uuid}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -111,11 +93,6 @@ export default function Dashboard() {
           </motion.section>
         )}
       </AnimatePresence>
-
-      {/* <section className="w-full max-w-4xl mx-auto">
-        <h2 className="text-2xl font-semibold mb-4">Plant Notifications</h2>
-        <PlantNotifications />
-      </section> */}
 
       {isLoading && <LoadingOverlay message="Updating plant data..." />}
     </div>
