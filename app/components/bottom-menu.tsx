@@ -1,8 +1,10 @@
 import { Link, useLocation } from "@remix-run/react";
 import { LeafIcon, MessageSquareDot, User } from "lucide-react";
+import { useNotificationStore } from "@/stores/notification.store";
 
 export function BottomMenu() {
   const location = useLocation();
+  const notifications = useNotificationStore((state) => state.notifications);
 
   return (
     <>
@@ -14,10 +16,12 @@ export function BottomMenu() {
                 icon: MessageSquareDot,
                 label: "Notifications",
                 route: "/notifications",
+                badge:
+                  notifications.length > 0 ? notifications.length : undefined,
               },
               { icon: LeafIcon, label: "Plants", route: "/" },
               { icon: User, label: "Profile", route: "/profile" },
-            ].map(({ icon: Icon, label, route }) => (
+            ].map(({ icon: Icon, label, route, badge }) => (
               <Link
                 key={route}
                 to={route}
@@ -28,7 +32,14 @@ export function BottomMenu() {
                   : "text-gray-500"
               }`}
               >
-                <Icon className="h-8 w-8" />
+                <div className="relative">
+                  <Icon className="h-8 w-8" />
+                  {badge !== undefined && (
+                    <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-medium">
+                      {badge}
+                    </div>
+                  )}
+                </div>
                 <span className="text-sm">{label}</span>
                 {location.pathname === route && (
                   <span className="absolute -bottom-[1px] left-1/2 w-12 h-0.5 bg-emerald-500 -translate-x-1/2" />

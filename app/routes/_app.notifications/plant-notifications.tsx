@@ -1,7 +1,10 @@
-import { notifications } from "@/lib/mocked-notifications";
 import { NotificationList } from "./notification-list";
+import { useNotificationStore } from "@/stores/notification.store";
 
 export function PlantNotifications() {
+  const { notifications, clearNotification, clearAllNotifications } =
+    useNotificationStore();
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -10,7 +13,11 @@ export function PlantNotifications() {
           {notifications.length} notifications
         </span>
       </div>
-      <NotificationList notifications={notifications} />
+      <NotificationList
+        notifications={notifications}
+        onClearNotification={clearNotification}
+        onClearAll={clearAllNotifications}
+      />
     </div>
   );
 }
