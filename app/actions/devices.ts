@@ -10,14 +10,14 @@ export interface Device {
 
 export const deviceActions = {
   getAll: async (request: Request, page: string = "1") => {
-    return apiClient(`/api/v1/devices?page=${page}`, {
+    return apiClient(`/api/devices?page=${page}`, {
       request,
       method: "GET",
     }) as Promise<PaginatedResponse<Device>>;
   },
 
   update: async (request: Request, uuid: string, data: Partial<Device>) => {
-    return apiClient(`/api/v1/devices/${uuid}/`, {
+    return apiClient(`/api/devices/${uuid}/`, {
       request,
       method: "PATCH",
       body: JSON.stringify(data),
