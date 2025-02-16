@@ -70,5 +70,30 @@ async function apiClient(
   }
 }
 
-export { apiClient, ApiError };
+async function unauthenticatedApiClient(
+  endpoint: string,
+  customConfig: Omit<RequestInit, "headers"> & { headers?: HeadersInit } = {}
+) {
+  const headers = {
+    "Content-Type": "application/json",
+    ...customConfig.headers,
+  };
+
+  const config: RequestInit = {
+    ...customConfig,
+    headers,
+  };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    return response;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError("Network error", 500);
+  }
+}
+
+export { apiClient, unauthenticatedApiClient, ApiError };
 export type { ApiClientError };

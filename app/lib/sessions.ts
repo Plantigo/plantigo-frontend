@@ -38,14 +38,3 @@ export async function getUserToken(request: Request) {
   const session = await getUserSession(request);
   return session.get("jwt");
 }
-
-export async function logout(request: Request) {
-  const session = await getUserSession(request);
-  return {
-    headers: {
-      "Set-Cookie": await destroySession(session),
-      Location: "/login",
-    },
-    status: 302,
-  };
-}

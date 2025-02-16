@@ -8,7 +8,7 @@ import { Leaf, LoaderCircle, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { ActionFunctionArgs } from "@remix-run/node";
-import { registerUser } from "../_auth/actions";
+import { authActions } from "@/actions/auth";
 import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 
 const formSchema = z
@@ -35,7 +35,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return { errors, defaultValues };
   }
 
-  const response = await registerUser(data);
+  const response = await authActions.register(data);
 
   if (response.ok) {
     return redirect("/account-created");
