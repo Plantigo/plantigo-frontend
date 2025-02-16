@@ -1,7 +1,7 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
-import { logout } from "@/lib/sessions";
+import { authActions } from "@/actions/auth";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { headers } = await logout(request);
+  const { headers } = await authActions.logout(request);
   return redirect("/login", { headers });
 }

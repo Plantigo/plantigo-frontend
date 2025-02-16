@@ -53,38 +53,38 @@ export default function App() {
   return <Outlet />;
 }
 
-export function ErrorBoundary() {
-  return (
-    <div className="px-6 absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
-      <Card className="p-6">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex justify-center">
-            <div className="bg-red-100 p-3 rounded-full">
-              <AlertCircle size="48" className="text-red-600" />
-            </div>
-          </div>
+// export function ErrorBoundary() {
+//   return (
+//     <div className="px-6 absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
+//       <Card className="p-6">
+//         <div className="flex flex-col items-center gap-4">
+//           <div className="flex justify-center">
+//             <div className="bg-red-100 p-3 rounded-full">
+//               <AlertCircle size="48" className="text-red-600" />
+//             </div>
+//           </div>
 
-          <h1 className="text-3xl font-bold text-center text-gray-900">
-            Something went wrong!
-          </h1>
+//           <h1 className="text-3xl font-bold text-center text-gray-900">
+//             Something went wrong!
+//           </h1>
 
-          <p className="text-gray-600 text-center  leading-relaxed">
-            An error occurred while trying to render this page. Please try again
-            later.
-          </p>
+//           <p className="text-gray-600 text-center  leading-relaxed">
+//             An error occurred while trying to render this page. Please try again
+//             later.
+//           </p>
 
-          <div className="pt-4">
-            <Button
-              variant="default"
-              size="lg"
-              className="rounded-full"
-              asChild
-            >
-              <Link to="/">Go to Home</Link>
-            </Button>
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
-}
+//           <div className="pt-4">
+//             <Button
+//               variant="default"
+//               size="lg"
+//               className="rounded-full"
+//               asChild
+//             >
+//               <Link to="/">Go to Home</Link>
+//             </Button>
+//           </div>
+//         </div>
+//       </Card>
+//     </div>
+//   );
+// }

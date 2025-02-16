@@ -9,10 +9,10 @@ import { Leaf, LoaderCircle, Eye, EyeOff } from "lucide-react";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { login } from "../_auth/actions";
 import { commitSession, createUserSession } from "@/lib/sessions";
 import { Browser } from "@capacitor/browser";
 import { Capacitor } from "@capacitor/core";
+import { authActions } from "@/actions/auth";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -39,7 +39,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return { errors, defaultValues };
   }
 
-  const response = await login(data);
+  const response = await authActions.login(data);
 
   if (response.ok) {
     const { access, refresh } = await response.json();

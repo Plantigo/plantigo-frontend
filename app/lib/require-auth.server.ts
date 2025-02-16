@@ -1,8 +1,7 @@
 import { getUserSession, commitSession } from "@/lib/sessions";
 import { verifyJwtToken } from "./verify-token";
-import { refreshAccessToken } from "@/routes/_auth/actions";
 import { API_BASE_URL } from "./env.server";
-
+import { authActions } from "@/actions/auth";
 export interface UserInfo {
   userId: string;
   email: string;
@@ -56,7 +55,9 @@ class CustomAuthStrategy implements AuthStrategy {
   }
 
   async refreshToken(refreshToken: string): Promise<{ access: string }> {
-    const response = await refreshAccessToken({ refresh: refreshToken });
+    const response = await authActions.refreshAccessToken({
+      refresh: refreshToken,
+    });
     if (!response.ok) {
       throw new Error("Failed to refresh access token");
     }
