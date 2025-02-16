@@ -30,7 +30,7 @@ export default function Profile() {
       title: "Device Management",
       icon: Share2,
       color: "bg-blue-100 text-blue-600",
-      route: "/profile",
+      route: "/devices-management",
       section: 1,
     },
     {

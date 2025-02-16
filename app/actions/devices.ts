@@ -6,6 +6,7 @@ export interface Device {
   mac_address: string;
   is_active: boolean;
   user: number;
+  plant_name: string;
 }
 
 export const deviceActions = {
@@ -22,5 +23,12 @@ export const deviceActions = {
       method: "PATCH",
       body: JSON.stringify(data),
     }) as Promise<Device>;
+  },
+
+  delete: async (request: Request, uuid: string) => {
+    return apiClient(`/api/v1/devices/${uuid}/`, {
+      request,
+      method: "DELETE",
+    });
   },
 };
