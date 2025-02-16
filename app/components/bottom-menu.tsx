@@ -15,12 +15,12 @@ export function BottomMenu() {
               {
                 icon: MessageSquareDot,
                 label: "Notifications",
-                route: "/notifications",
+                route: "/app/notifications",
                 badge:
                   notifications.length > 0 ? notifications.length : undefined,
               },
-              { icon: LeafIcon, label: "Plants", route: "/" },
-              { icon: User, label: "Profile", route: "/profile" },
+              { icon: LeafIcon, label: "Plants", route: "/app" },
+              { icon: User, label: "Profile", route: "/app/profile" },
             ].map(({ icon: Icon, label, route, badge }) => (
               <Link
                 key={route}

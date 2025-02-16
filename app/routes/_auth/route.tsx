@@ -13,7 +13,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         headers: authRequest.headers,
       });
     }
-    return redirect("/", {
+    return redirect("/app", {
       headers: authRequest.headers,
     });
   }

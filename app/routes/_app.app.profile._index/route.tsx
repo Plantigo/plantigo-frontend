@@ -30,35 +30,35 @@ export default function Profile() {
       title: "Device Management",
       icon: Share2,
       color: "bg-blue-100 text-blue-600",
-      route: "/devices-management",
+      route: "/app/devices-management",
       section: 1,
     },
     {
       title: "Plant Notifications",
       icon: MessageSquareDot,
       color: "bg-indigo-100 text-indigo-600",
-      route: "/profile",
+      route: "/app/notifications",
       section: 1,
     },
     {
       title: "Help & Support",
       icon: HelpCircle,
       color: "bg-amber-100 text-amber-600",
-      route: "/profile",
+      route: "/app/help-support",
       section: 1,
     },
     {
       title: "About Plantigo",
       icon: Info,
       color: "bg-emerald-100 text-emerald-600",
-      route: "/profile",
+      route: "/app/about-plantigo",
       section: 1,
     },
     {
       title: "Settings",
       icon: Settings,
       color: "bg-gray-100 text-gray-600",
-      route: "/settings",
+      route: "/app/settings",
       section: 2,
     },
     {
@@ -78,7 +78,7 @@ export default function Profile() {
 
   return (
     <div className="pt-20 pb-24">
-      <Link to="/profile/configuration">
+      <Link to="/app/profile/configuration">
         <div className="flex items-center space-x-4 mb-8 bg-white p-4 rounded-xl shadow-sm">
           <div className="relative">
             <Avatar>

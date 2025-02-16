@@ -42,7 +42,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     authType: "google",
   });
 
-  return redirect("/", {
+  return redirect("/app", {
     headers: {
       "Set-Cookie": await commitSession(session),
     },
