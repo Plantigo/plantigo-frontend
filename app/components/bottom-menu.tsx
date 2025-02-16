@@ -5,6 +5,7 @@ import { useNotificationStore } from "@/stores/notification.store";
 export function BottomMenu() {
   const location = useLocation();
   const notifications = useNotificationStore((state) => state.notifications);
+  const currentPath = location.pathname.replace("/app", "");
 
   return (
     <>
@@ -15,19 +16,20 @@ export function BottomMenu() {
               {
                 icon: MessageSquareDot,
                 label: "Notifications",
-                route: "/app/notifications",
+                route: "/notifications",
                 badge:
                   notifications.length > 0 ? notifications.length : undefined,
               },
-              { icon: LeafIcon, label: "Plants", route: "/app" },
-              { icon: User, label: "Profile", route: "/app/profile" },
+              { icon: LeafIcon, label: "Plants", route: "" },
+              { icon: User, label: "Profile", route: "/profile" },
             ].map(({ icon: Icon, label, route, badge }) => (
               <Link
                 key={route}
-                to={route}
+                to={`/app${route}`}
                 className={`flex flex-col items-center space-y-1 relative w-16
               ${
-                location.pathname === route
+                (route === "" && currentPath === "") ||
+                (route !== "" && currentPath.includes(route))
                   ? "text-emerald-500"
                   : "text-gray-500"
               }`}
@@ -41,7 +43,8 @@ export function BottomMenu() {
                   )}
                 </div>
                 <span className="text-sm">{label}</span>
-                {location.pathname === route && (
+                {((route === "" && currentPath === "") ||
+                  (route !== "" && currentPath.includes(route))) && (
                   <span className="absolute -bottom-[1px] left-1/2 w-12 h-0.5 bg-emerald-500 -translate-x-1/2" />
                 )}
               </Link>

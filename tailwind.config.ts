@@ -60,6 +60,20 @@ export default {
           "5": "hsl(var(--chart-5))",
         },
       },
+      keyframes: {
+        slideFromRight: {
+          "0%": { transform: "translateX(50px)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        slideFromLeft: {
+          "0%": { transform: "translateX(-50px)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+      },
+      animation: {
+        slideFromRight: "slideFromRight 0.2s ease-out",
+        slideFromLeft: "slideFromLeft 0.2s ease-out",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

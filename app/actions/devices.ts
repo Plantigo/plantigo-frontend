@@ -17,6 +17,13 @@ export const deviceActions = {
     }) as Promise<PaginatedResponse<Device>>;
   },
 
+  getOne: async (request: Request, uuid: string) => {
+    return apiClient(`/api/v1/devices/${uuid}/`, {
+      request,
+      method: "GET",
+    }) as Promise<Device>;
+  },
+
   update: async (request: Request, uuid: string, data: Partial<Device>) => {
     return apiClient(`/api/v1/devices/${uuid}/`, {
       request,

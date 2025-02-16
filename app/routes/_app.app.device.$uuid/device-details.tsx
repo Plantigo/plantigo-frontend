@@ -11,11 +11,11 @@ import { Wifi, WifiOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Device } from "@/actions/devices";
 
-interface PlantDetailsProps {
+interface DeviceDetailsProps {
   device: Device;
 }
 
-export function PlantDetails({ device }: PlantDetailsProps) {
+export function DeviceDetails({ device }: DeviceDetailsProps) {
   const [activeTab, setActiveTab] = useState("status");
 
   return (

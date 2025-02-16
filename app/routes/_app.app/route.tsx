@@ -10,7 +10,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUser(request);
 
   if (!user) {
-    console.log("Redirecting to login");
     return redirect("/login", {
       headers: authRequest?.headers,
     });
@@ -25,7 +24,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen flex flex-col">
       <TopBar />
-      <main className="flex-grow flex items-center justify-center w-full px-14 py-16 bg-gradient-to-br from-emerald-200 via-green-200 to-teal-200">
+      <main className="flex-grow flex items-center justify-center w-full px-8 py-16 bg-gradient-to-br from-emerald-200 via-green-200 to-teal-200">
         <div className="w-full">
           <Outlet />
         </div>

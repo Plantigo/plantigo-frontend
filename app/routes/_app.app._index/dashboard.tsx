@@ -1,10 +1,5 @@
-import { useState, useCallback } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Plus } from "lucide-react";
 import { DeviceCarousel } from "./device-carousel";
-import { useToast } from "@/hooks/use-toast";
-import { LoadingOverlay } from "./loading-overlay";
-import { PlantDetails } from "./device-details";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Device } from "@/actions/devices";
-import { Link } from "@remix-run/react";
+import { Link, useNavigate } from "@remix-run/react";
 import { PaginatedResponse } from "@/lib/api-client";
 
 interface DashboardProps {
@@ -23,29 +18,7 @@ interface DashboardProps {
 
 export default function Dashboard({ devices }: DashboardProps) {
   const { results: deviceList } = devices;
-  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  const handleDeviceSelect = useCallback((device: Device) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setSelectedDevice(device);
-      setIsLoading(false);
-    }, 500);
-  }, []);
-
-  const handleRefresh = useCallback(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Data refreshed",
-        description: "Your plant data has been updated.",
-      });
-    }, 1000);
-  }, [toast]);
-
+  const navigate = useNavigate();
   const connectionIssues = deviceList.filter((device) => !device.is_active);
   const hasIssues = connectionIssues.length > 0;
   const hasDevices = deviceList.length > 0;
@@ -53,6 +26,10 @@ export default function Dashboard({ devices }: DashboardProps) {
   const issueDetails = connectionIssues
     .map((device) => `${device.name}: Not connected`)
     .join("\n");
+
+  const handleDeviceSelect = (device: Device) => {
+    navigate(`/app/device/${device.uuid}`);
+  };
 
   if (!hasDevices) {
     return (
@@ -96,32 +73,20 @@ export default function Dashboard({ devices }: DashboardProps) {
         </Alert>
       )}
       <section className="w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Your Plants</h2>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold">Your Plants</h2>
+          </div>
         </div>
-        <DeviceCarousel
-          devices={deviceList}
-          onDeviceSelect={handleDeviceSelect}
-        />
+        <div className="w-screen -mx-[calc((100vw-100%)/2)]">
+          <div className="max-w-7xl mx-auto px-4">
+            <DeviceCarousel
+              devices={deviceList}
+              onDeviceSelect={handleDeviceSelect}
+            />
+          </div>
+        </div>
       </section>
-
-      <AnimatePresence mode="wait" initial={false}>
-        {selectedDevice && (
-          <motion.section
-            key={selectedDevice.uuid}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            layout
-            className="w-full max-w-4xl mx-auto"
-          >
-            <PlantDetails device={selectedDevice} />
-          </motion.section>
-        )}
-      </AnimatePresence>
-
-      {isLoading && <LoadingOverlay message="Updating plant data..." />}
     </div>
   );
 }
