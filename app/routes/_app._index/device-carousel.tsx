@@ -1,5 +1,11 @@
 import React from "react";
-import { Battery, Leaf, Wifi, WifiOff, ChevronRight } from "lucide-react";
+import {
+  CircuitBoard,
+  Wifi,
+  WifiOff,
+  ChevronRight,
+  Sprout,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
@@ -33,7 +39,7 @@ export function DeviceCarousel({
                 <div className="p-1 md:p-2 h-full">
                   <Card
                     className={cn(
-                      "overflow-hidden border-0 shadow-none transition-all duration-500 h-full",
+                      "sm:w-[270px] overflow-hidden border-0 shadow-none transition-all duration-500 h-full",
                       "hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/5"
                     )}
                   >
@@ -50,30 +56,43 @@ export function DeviceCarousel({
 
                       <div className="relative flex-1 flex flex-col justify-between">
                         <div className="flex justify-between items-start">
-                          <div className="space-y-1">
-                            <div className="text-lg font-semibold">
-                              {device.name}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              MAC: {device.mac_address}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            {device.is_active ? (
-                              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500">
-                                <Wifi className="w-4 h-4" />
-                                <span className="text-xs font-medium">
-                                  Online
-                                </span>
+                          <div className="flex flex-col gap-3">
+                            <div className="flex justify-between items-center gap-3">
+                              <div className="w-32 overflow-hidden text-ellipsis whitespace-nowrap text-lg font-semibold">
+                                {device.name}
                               </div>
-                            ) : (
-                              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 text-rose-500">
-                                <WifiOff className="w-4 h-4" />
-                                <span className="text-xs font-medium">
-                                  Offline
+                              {device.is_active ? (
+                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500">
+                                  <Wifi className="w-4 h-4" />
+                                  <span className="text-xs font-medium">
+                                    Online
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 text-rose-500">
+                                  <WifiOff className="w-4 h-4" />
+                                  <span className="text-xs font-medium">
+                                    Offline
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-sm text-muted-foreground flex items-center gap-1.5 w-40">
+                              <Sprout className="w-6 h-6 text-primary" />
+                              {device.plant_name ? (
+                                device.plant_name
+                              ) : (
+                                <span className="italic">
+                                  Plant name not set
                                 </span>
-                              </div>
-                            )}
+                              )}
+                            </div>
+                            <div className="text-sm text-muted-foreground flex items-center gap-1.5">
+                              <CircuitBoard className="w-5 h-5 text-primary" />
+                              <span className="font-mono text-xs">
+                                {device.mac_address}
+                              </span>
+                            </div>
                           </div>
                         </div>
 

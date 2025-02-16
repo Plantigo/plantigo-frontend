@@ -60,6 +60,11 @@ async function apiClient(
       throw new ApiError("API request failed", response.status);
     }
 
+    // Handle 204 No Content responses
+    if (response.status === 204) {
+      return null;
+    }
+
     const data = await response.json();
     return data;
   } catch (error) {

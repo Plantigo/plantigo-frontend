@@ -14,11 +14,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Device } from "@/actions/devices";
-import { useLoaderData, Link } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 import { PaginatedResponse } from "@/lib/api-client";
 
-export default function Dashboard() {
-  const { results: devices } = useLoaderData<PaginatedResponse<Device>>();
+interface DashboardProps {
+  devices: PaginatedResponse<Device>;
+}
+
+export default function Dashboard({ devices }: DashboardProps) {
+  const { results: deviceList } = devices;
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -42,9 +46,9 @@ export default function Dashboard() {
     }, 1000);
   }, [toast]);
 
-  const connectionIssues = devices.filter((device) => !device.is_active);
+  const connectionIssues = deviceList.filter((device) => !device.is_active);
   const hasIssues = connectionIssues.length > 0;
-  const hasDevices = devices.length > 0;
+  const hasDevices = deviceList.length > 0;
 
   const issueDetails = connectionIssues
     .map((device) => `${device.name}: Not connected`)
@@ -95,7 +99,10 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold">Your Plants</h2>
         </div>
-        <DeviceCarousel devices={devices} onDeviceSelect={handleDeviceSelect} />
+        <DeviceCarousel
+          devices={deviceList}
+          onDeviceSelect={handleDeviceSelect}
+        />
       </section>
 
       <AnimatePresence mode="wait" initial={false}>
