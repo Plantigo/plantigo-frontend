@@ -48,7 +48,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       refreshToken: refresh,
       authType: "custom",
     });
-    return redirect("/", {
+    return redirect("/app", {
       headers: {
         "Set-Cookie": await commitSession(session),
       },
