@@ -30,7 +30,7 @@ export default function Profile() {
       title: "Device Management",
       icon: Share2,
       color: "bg-blue-100 text-blue-600",
-      route: "/app/devices-management",
+      route: "/app/profile/devices-management",
       section: 1,
     },
     {
@@ -41,17 +41,10 @@ export default function Profile() {
       section: 1,
     },
     {
-      title: "Help & Support",
-      icon: HelpCircle,
-      color: "bg-amber-100 text-amber-600",
-      route: "/app/help-support",
-      section: 1,
-    },
-    {
       title: "About Plantigo",
       icon: Info,
       color: "bg-emerald-100 text-emerald-600",
-      route: "/app/about-plantigo",
+      route: "/app/about",
       section: 1,
     },
     {
@@ -90,7 +83,7 @@ export default function Profile() {
             <div className="absolute bottom-0 right-0 h-4 w-4 bg-emerald-500 rounded-full border-2 border-white"></div>
           </div>
           <div className="flex-1">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl max-w-[200px] sm:max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-gray-900">
               {user?.fullName ?? user?.email}
             </h2>
             <p className="text-sm text-gray-500">Plant Enthusiast</p>
