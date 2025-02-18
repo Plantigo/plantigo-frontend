@@ -21,7 +21,7 @@ export default function DeviceSuccessPage() {
         </div>
 
         <div className="flex flex-col gap-3 w-full max-w-xs animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-700">
-          <Link to="/">
+          <Link to="/app">
             <Button
               size="lg"
               className="w-full bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 text-white"

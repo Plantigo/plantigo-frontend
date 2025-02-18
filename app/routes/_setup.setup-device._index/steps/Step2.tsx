@@ -20,11 +20,13 @@ import { useBleDeviceStore } from "@/stores/ble-device.store";
 interface Step2Props {
   handleNextStep: () => void;
   handlePreviousStep: () => void;
+  onSetMacAddress: (macAddress: string) => void;
 }
 
 export default function Step2({
   handleNextStep,
   handlePreviousStep,
+  onSetMacAddress,
 }: Step2Props) {
   const [wifiSSID, setWifiSSID] = useState("");
   const [wifiPassword, setWifiPassword] = useState("");
@@ -46,8 +48,19 @@ export default function Step2({
           // This callback will be called when notification is received
           const data = new Uint8Array(value.buffer);
           console.log("Received notification:", data.toString());
-          if (data.length === 2 && data[0] === 79 && data[1] === 75) {
-            console.log("Received OK notification");
+          if (
+            data.length >= 3 &&
+            data[0] === 79 &&
+            data[1] === 75 &&
+            data[2] === 124
+          ) {
+            console.log("Received OK notification with MAC address");
+            // Convert the remaining bytes to ASCII characters to get the MAC address
+            const macAddress = Array.from(data.slice(3))
+              .map((byte) => String.fromCharCode(byte))
+              .join("");
+            console.log("Device MAC address:", macAddress);
+            onSetMacAddress(macAddress);
             setWifiConnected(true);
             setIsLoading(false);
             // Stop notifications after receiving OK

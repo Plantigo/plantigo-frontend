@@ -13,10 +13,17 @@ export const BLE_SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
 export const BLE_WIFI_CREDENTIALS_CHARACTERISTIC_UUID =
   "19b10001-e8f2-537e-4f6c-d104768a1214";
 
+interface DeviceSetupData {
+  macAddress?: string;
+  plantName?: string;
+  deviceName?: string;
+}
+
 export default function SetupDevicePage() {
   let user = useUserData();
   const [step, setStep] = useState(1);
   const { bleDevice, setBleDevice, wifiConnected } = useBleDeviceStore();
+  const [deviceSetupData, setDeviceSetupData] = useState<DeviceSetupData>({});
 
   useEffect(() => {
     if (bleDevice === null && !wifiConnected) {
@@ -26,6 +33,10 @@ export default function SetupDevicePage() {
 
   const handleNextStep = () => setStep(step + 1);
   const handlePreviousStep = () => setStep(step - 1);
+
+  const updateDeviceSetupData = (data: Partial<DeviceSetupData>) => {
+    setDeviceSetupData((prev) => ({ ...prev, ...data }));
+  };
 
   const steps = [
     { number: 1, title: "Bluetooth Setup", icon: Bluetooth },
@@ -78,6 +89,9 @@ export default function SetupDevicePage() {
             <Step2
               handleNextStep={handleNextStep}
               handlePreviousStep={handlePreviousStep}
+              onSetMacAddress={(macAddress) =>
+                updateDeviceSetupData({ macAddress })
+              }
             />
           )}
 
@@ -85,10 +99,21 @@ export default function SetupDevicePage() {
             <Step3
               handleNextStep={handleNextStep}
               handlePreviousStep={handlePreviousStep}
+              onSetPlantName={(plantName) =>
+                updateDeviceSetupData({ plantName })
+              }
             />
           )}
 
-          {step === 4 && <Step4 handlePreviousStep={handlePreviousStep} />}
+          {step === 4 && (
+            <Step4
+              handlePreviousStep={handlePreviousStep}
+              onSetDeviceName={(deviceName) =>
+                updateDeviceSetupData({ deviceName })
+              }
+              deviceSetupData={deviceSetupData}
+            />
+          )}
         </div>
       </div>
     </div>
