@@ -11,31 +11,36 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Device } from "@/actions/devices";
 
-interface RenameDeviceDialogProps {
+interface EditDeviceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onRename: (newName: string) => void;
+  onEdit: (data: { name: string; plant_name: string }) => void;
   device: Device | null;
 }
 
-export function RenameDeviceDialog({
+export function EditDeviceDialog({
   open,
   onOpenChange,
-  onRename,
+  onEdit,
   device,
-}: RenameDeviceDialogProps) {
+}: EditDeviceDialogProps) {
   const [newName, setNewName] = useState("");
+  const [plantName, setPlantName] = useState("");
 
   useEffect(() => {
     if (device) {
       setNewName(device.name);
+      setPlantName(device.plant_name || "");
     }
   }, [device]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newName.trim()) {
-      onRename(newName.trim());
+      onEdit({
+        name: newName.trim(),
+        plant_name: plantName.trim(),
+      });
     }
   };
 
@@ -43,7 +48,7 @@ export function RenameDeviceDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Rename Device</DialogTitle>
+          <DialogTitle>Edit Device</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -52,12 +57,21 @@ export function RenameDeviceDialog({
               id="name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Enter new name"
+              placeholder="Enter device name"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="plant_name">Plant Name</Label>
+            <Input
+              id="plant_name"
+              value={plantName}
+              onChange={(e) => setPlantName(e.target.value)}
+              placeholder="Enter plant name"
             />
           </div>
           <DialogFooter>
             <Button type="submit" disabled={!newName.trim()} size="lg">
-              Save
+              Save Changes
             </Button>
           </DialogFooter>
         </form>

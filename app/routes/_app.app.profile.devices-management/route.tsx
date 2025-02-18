@@ -24,7 +24,7 @@ import React, { Suspense } from "react";
 import { Device, deviceActions } from "@/actions/devices";
 import { PaginatedResponse } from "@/lib/api-client";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { RenameDeviceDialog } from "./rename-device-dialog";
+import { EditDeviceDialog } from "./rename-device-dialog";
 import { DeleteDeviceDialog } from "./delete-device-dialog";
 
 interface RenameResponse extends Device {
@@ -69,6 +69,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (intent === "rename") {
     const name = formData.get("name");
+    const plant_name = formData.get("plant_name");
     if (!name) {
       return json({ error: "Missing name field" }, { status: 400 });
     }
@@ -79,12 +80,13 @@ export async function action({ request }: ActionFunctionArgs) {
         uuid.toString(),
         {
           name: name.toString(),
+          plant_name: plant_name?.toString() || "",
         }
       );
       return json(updatedDevice);
     } catch (error) {
-      console.error("Error renaming device:", error);
-      return json({ error: "Failed to rename device" }, { status: 500 });
+      console.error("Error updating device:", error);
+      return json({ error: "Failed to update device" }, { status: 500 });
     }
   }
 
@@ -99,6 +101,7 @@ export default function SettingsPage() {
   const [optimisticDeviceName, setOptimisticDeviceName] = useState<{
     uuid: string;
     name: string;
+    plant_name: string;
   } | null>(null);
   const [deletedDeviceIds, setDeletedDeviceIds] = useState<string[]>([]);
   const { toast } = useToast();
@@ -128,14 +131,19 @@ export default function SettingsPage() {
     setDeviceToDelete(null);
   };
 
-  const handleRename = (newName: string) => {
+  const handleRename = (data: { name: string; plant_name: string }) => {
     if (!selectedDevice) return;
 
-    setOptimisticDeviceName({ uuid: selectedDevice.uuid, name: newName });
+    setOptimisticDeviceName({
+      uuid: selectedDevice.uuid,
+      name: data.name,
+      plant_name: data.plant_name,
+    });
 
     const formData = new FormData();
     formData.append("uuid", selectedDevice.uuid);
-    formData.append("name", newName);
+    formData.append("name", data.name);
+    formData.append("plant_name", data.plant_name);
     formData.append("intent", "rename");
 
     fetcher.submit(formData, { method: "post" });
@@ -181,8 +189,15 @@ export default function SettingsPage() {
     return device.name;
   };
 
+  const getPlantName = (device: Device) => {
+    if (optimisticDeviceName?.uuid === device.uuid) {
+      return optimisticDeviceName.plant_name;
+    }
+    return device.plant_name;
+  };
+
   return (
-    <div className="container py-8 space-y-8">
+    <div className="flex flex-col items-center justify-center">
       <Suspense fallback={<LoadingSpinner />}>
         <Await resolve={data.devices}>
           {(devices) => {
@@ -197,15 +212,15 @@ export default function SettingsPage() {
             return (
               <>
                 {isLoading ? (
-                  <div className="flex items-center justify-center h-[50vh]">
+                  <div className="fixed inset-0 flex items-center justify-center">
                     <LoadingSpinner />
                   </div>
                 ) : (
-                  <>
-                    <div className="space-y-4 pt-4">
+                  <div className="w-full max-w-[600px] px-4 py-8">
+                    <div className="space-y-4">
                       <h1 className="text-3xl font-bold">Devices Management</h1>
                       {filteredDevices.results.length > 0 && (
-                        <Button asChild className="w-full sm:w-auto" size="lg">
+                        <Button asChild className="w-full" size="lg">
                           <Link to="/setup-device" className="gap-2">
                             <Plus className="w-4 h-4" />
                             Add Device
@@ -215,7 +230,7 @@ export default function SettingsPage() {
                     </div>
 
                     {filteredDevices.results.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center h-[50vh] gap-6 text-center">
+                      <div className="flex flex-col items-center justify-center min-h-[400px] gap-6 text-center">
                         <h2 className="text-2xl font-semibold">
                           No Devices Connected
                         </h2>
@@ -230,18 +245,11 @@ export default function SettingsPage() {
                         </Button>
                       </div>
                     ) : (
-                      <div className="space-y-6">
-                        <div
-                          className={cn(
-                            "grid gap-4",
-                            !filteredDevices.next &&
-                              !filteredDevices.previous &&
-                              "pb-6"
-                          )}
-                        >
+                      <div className="space-y-6 py-6">
+                        <div className="space-y-4">
                           {filteredDevices.results.map((device) => (
                             <Card key={device.uuid}>
-                              <CardContent className="p-4 sm:p-6 relative">
+                              <CardContent className="p-4 relative">
                                 <div
                                   className={cn(
                                     "absolute top-4 right-4 sm:top-6 sm:right-6",
@@ -267,35 +275,39 @@ export default function SettingsPage() {
                                     </>
                                   )}
                                 </div>
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                  <div className="space-y-1">
-                                    <h3 className="w-36 overflow-hidden text-ellipsis whitespace-nowrap text-lg sm:text-xl font-semibold">
-                                      {getDeviceName(device)}
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                                      <Sprout className="text-primary w-5 h-5" />
-                                      {device.plant_name ? (
-                                        device.plant_name
-                                      ) : (
-                                        <span className="italic">
-                                          Plant name not set
+                                <div className="flex flex-col h-full">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mb-2 sm:mb-3">
+                                      <h3 className="text-lg sm:text-xl font-semibold truncate pr-24 sm:pr-32">
+                                        {getDeviceName(device)}
+                                      </h3>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                      <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                                        <Sprout className="text-primary w-5 h-5" />
+                                        {getPlantName(device) ? (
+                                          getPlantName(device)
+                                        ) : (
+                                          <span className="italic">
+                                            Plant name not set
+                                          </span>
+                                        )}
+                                      </p>
+                                      <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                                        <CircuitBoard className="text-primary w-5 h-5" />
+                                        <span className="font-mono text-xs">
+                                          {device.mac_address}
                                         </span>
-                                      )}
-                                    </p>
-                                    <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                                      <CircuitBoard className="text-primary w-5 h-5" />
-                                      <span className="font-mono text-xs">
-                                        {device.mac_address}
-                                      </span>
-                                    </p>
+                                      </p>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-3">
+                                  <div className="flex justify-end items-center gap-3 mt-4 sm:mt-6 pt-2 sm:pt-4 border-t">
                                     <Button
                                       variant="outline"
                                       onClick={() => setSelectedDevice(device)}
                                       disabled={fetcher.state === "submitting"}
                                     >
-                                      Rename
+                                      Edit
                                     </Button>
                                     <Button
                                       variant="destructive"
@@ -316,7 +328,7 @@ export default function SettingsPage() {
                         {filteredDevices.results.length > 0 &&
                           (filteredDevices.next ||
                             filteredDevices.previous) && (
-                            <div className="flex justify-center gap-2 sm:gap-4 pb-6">
+                            <div className="flex justify-center gap-2 sm:gap-4">
                               {filteredDevices.previous ? (
                                 <Button variant="outline" size="sm" asChild>
                                   <Link
@@ -359,7 +371,7 @@ export default function SettingsPage() {
                           )}
                       </div>
                     )}
-                  </>
+                  </div>
                 )}
               </>
             );
@@ -367,10 +379,10 @@ export default function SettingsPage() {
         </Await>
       </Suspense>
 
-      <RenameDeviceDialog
+      <EditDeviceDialog
         open={!!selectedDevice}
         onOpenChange={(open) => !open && setSelectedDevice(null)}
-        onRename={handleRename}
+        onEdit={handleRename}
         device={selectedDevice}
       />
 

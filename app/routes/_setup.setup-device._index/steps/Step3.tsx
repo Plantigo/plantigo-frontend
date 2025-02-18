@@ -19,11 +19,13 @@ import { useState } from "react";
 interface Step3Props {
   handleNextStep: () => void;
   handlePreviousStep: () => void;
+  onSetPlantName: (plantName: string) => void;
 }
 
 export default function Step3({
   handleNextStep,
   handlePreviousStep,
+  onSetPlantName,
 }: Step3Props) {
   const [comboBoxOpen, setComboBoxOpen] = useState(false);
   const [comboBoxValue, setComboBoxValue] = useState("");
@@ -50,6 +52,15 @@ export default function Step3({
       label: "Daisy",
     },
   ];
+
+  const handlePlantSelection = (currentValue: string) => {
+    const newValue = currentValue === comboBoxValue ? "" : currentValue;
+    setComboBoxValue(newValue);
+    const plantLabel =
+      plantSpicies.find((species) => species.value === newValue)?.label || "";
+    onSetPlantName(plantLabel);
+    setComboBoxOpen(false);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
@@ -89,12 +100,7 @@ export default function Step3({
                     <CommandItem
                       key={spicies.value}
                       value={spicies.value}
-                      onSelect={(currentValue) => {
-                        setComboBoxValue(
-                          currentValue === comboBoxValue ? "" : currentValue
-                        );
-                        setComboBoxOpen(false);
-                      }}
+                      onSelect={handlePlantSelection}
                     >
                       {spicies.label}
                       <Check

@@ -10,6 +10,14 @@ export interface Device {
 }
 
 export const deviceActions = {
+  create: async (request: Request, data: Omit<Device, "uuid" | "user">) => {
+    return apiClient("/api/v1/devices/", {
+      request,
+      method: "POST",
+      body: JSON.stringify(data),
+    }) as Promise<Device>;
+  },
+
   getAll: async (request: Request, page: string = "1") => {
     return apiClient(`/api/v1/devices?page=${page}`, {
       request,
