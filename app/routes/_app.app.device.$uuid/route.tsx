@@ -1,13 +1,31 @@
-import { type LoaderFunctionArgs, defer } from "@remix-run/node";
-import { Await, useLoaderData } from "@remix-run/react";
+import {
+  type LoaderFunctionArgs,
+  type ActionFunctionArgs,
+  defer,
+} from "@remix-run/node";
+import { Await, useLoaderData, useFetcher } from "@remix-run/react";
 import { deviceActions } from "@/actions/devices";
+import { telemetryActions } from "@/actions/telemetry";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { Suspense } from "react";
 import { DeviceDetails } from "./device-details";
 
+export async function action({ request, params }: ActionFunctionArgs) {
+  const telemetryData = await telemetryActions.getAll(request, {
+    device: params.uuid,
+  });
+  return telemetryData;
+}
+
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const devicePromise = deviceActions.getOne(request, params.uuid!);
-  return defer({ device: devicePromise });
+  const telemetryPromise = telemetryActions.getAll(request, {
+    device: params.uuid,
+  });
+  return defer({
+    device: devicePromise,
+    telemetry: telemetryPromise,
+  });
 }
 
 export default function DeviceRoute() {
@@ -17,7 +35,7 @@ export default function DeviceRoute() {
     <div className="container max-w-4xl mx-auto py-8">
       <Suspense fallback={<LoadingSpinner />}>
         <Await
-          resolve={data.device}
+          resolve={Promise.all([data.device, data.telemetry])}
           errorElement={
             <div className="flex items-center justify-center p-8">
               <div className="text-center">
@@ -31,11 +49,11 @@ export default function DeviceRoute() {
             </div>
           }
         >
-          {(device) => {
+          {([device, telemetry]) => {
             if (!device) {
               throw new Response("Device not found", { status: 404 });
             }
-            return <DeviceDetails device={device} />;
+            return <DeviceDetails device={device} telemetry={telemetry} />;
           }}
         </Await>
       </Suspense>
