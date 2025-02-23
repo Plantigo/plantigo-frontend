@@ -12,6 +12,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface DeviceDetailsProps {
   device: Device;
@@ -68,20 +71,38 @@ export function DeviceDetails({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <MoistureDiagram
-              moisture={
-                latestTelemetry
-                  ? convertToPercentage(latestTelemetry.soil_moisture)
-                  : 0
-              }
-              lastMeasuredAt={
-                latestTelemetry
-                  ? new Date(latestTelemetry.timestamp)
-                  : new Date()
-              }
-              onRefresh={handleRefresh}
-              isRefreshing={isRefreshing}
-            />
+            {latestTelemetry ? (
+              <MoistureDiagram
+                moisture={convertToPercentage(latestTelemetry.soil_moisture)}
+                lastMeasuredAt={new Date(latestTelemetry.timestamp)}
+                onRefresh={handleRefresh}
+                isRefreshing={isRefreshing}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <AlertCircle className="h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                  No Data Available
+                </h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  There is no moisture data available for this device yet.
+                </p>
+                <Button
+                  onClick={handleRefresh}
+                  variant="secondary"
+                  size="lg"
+                  className="text-sm flex items-center gap-2"
+                  disabled={isRefreshing}
+                >
+                  <RefreshCw
+                    className={cn("h-4 w-4", {
+                      "animate-spin": isRefreshing,
+                    })}
+                  />
+                  Refresh Data
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
