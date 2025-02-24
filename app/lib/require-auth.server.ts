@@ -127,6 +127,24 @@ export async function requireAuth(request: Request): Promise<Request> {
 
       session.unset("accessToken");
       session.set("accessToken", accessToken);
+
+      const headers = new Headers(request.headers);
+      headers.set("Authorization", `Bearer ${accessToken}`);
+
+      request = new Request(request.url, {
+        method: request.method,
+        headers: headers,
+        body: request.body,
+        cache: request.cache,
+        credentials: request.credentials,
+        integrity: request.integrity,
+        keepalive: request.keepalive,
+        mode: request.mode,
+        redirect: request.redirect,
+        referrer: request.referrer,
+        referrerPolicy: request.referrerPolicy,
+        signal: request.signal,
+      });
     } catch (error) {
       console.error("Failed to refresh access token", error);
       return request;
