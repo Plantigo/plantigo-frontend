@@ -36,7 +36,9 @@ async function apiClient(
   }
 
   const session = await getUserSession(request);
-  const accessToken = session.get("accessToken");
+  let accessToken = session.get("accessToken");
+  const refreshToken = session.get("refreshToken");
+  const authType = session.get("authType");
 
   if (!accessToken) {
     throw new ApiError("Unauthorized", 401);
@@ -54,7 +56,44 @@ async function apiClient(
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    let response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+
+    // Handle token expiration
+    if (response.status === 403 && refreshToken && authType) {
+      try {
+        // Try to refresh the token
+        const refreshResponse = await unauthenticatedApiClient(
+          "/api/v1/auth/token/refresh/",
+          {
+            method: "POST",
+            body: JSON.stringify({ refresh: refreshToken }),
+          }
+        );
+
+        if (!refreshResponse.ok) {
+          throw new ApiError("Failed to refresh token", refreshResponse.status);
+        }
+
+        const { access } = await refreshResponse.json();
+
+        // Update session with new access token
+        session.unset("accessToken");
+        session.set("accessToken", access);
+
+        // Retry the original request with new token
+        const newHeaders = {
+          ...headers,
+          Authorization: `Bearer ${access}`,
+        };
+
+        response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          ...config,
+          headers: newHeaders,
+        });
+      } catch (error) {
+        throw new ApiError("Token refresh failed", 403);
+      }
+    }
 
     if (!response.ok) {
       throw new ApiError("API request failed", response.status);

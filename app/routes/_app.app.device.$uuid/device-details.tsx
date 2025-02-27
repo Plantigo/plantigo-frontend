@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Wifi, WifiOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Device } from "@/actions/devices";
@@ -30,18 +30,18 @@ export function DeviceDetails({
   const telemetry = fetcher.data ?? initialTelemetry;
   const latestTelemetry = telemetry.results[0];
 
-  const convertToPercentage = (value: number) => {
-    return Math.round((value / 1000) * 100);
-  };
-
   const handleRefresh = () => {
     setIsRefreshing(true);
     fetcher.submit({}, { method: "post" });
-    // Reset the refreshing state after a delay
     setTimeout(() => {
       setIsRefreshing(false);
     }, 1000);
   };
+
+  useEffect(() => {
+    const interval = setInterval(handleRefresh, 60 * 1000);
+    return () => clearInterval(interval);
+  }, [handleRefresh]);
 
   return (
     <div className="space-y-6">
