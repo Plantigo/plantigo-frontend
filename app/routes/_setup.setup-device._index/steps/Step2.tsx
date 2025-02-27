@@ -56,11 +56,20 @@ export default function Step2({
           ) {
             console.log("Received OK notification with MAC address");
             // Convert the remaining bytes to ASCII characters to get the MAC address
-            const macAddress = Array.from(data.slice(3))
+            const rawMacAddress = Array.from(data.slice(3))
               .map((byte) => String.fromCharCode(byte))
               .join("");
-            console.log("Device MAC address:", macAddress);
-            onSetMacAddress(macAddress);
+
+            // Format MAC address to standard format (XX:XX:XX:XX:XX:XX)
+            const formattedMacAddress =
+              rawMacAddress
+                .replace(/[^0-9A-Fa-f]/g, "") // Remove any non-hex characters
+                .toUpperCase()
+                .match(/.{2}/g)
+                ?.join(":") || "";
+
+            console.log("Device MAC address:", formattedMacAddress);
+            onSetMacAddress(formattedMacAddress);
             setWifiConnected(true);
             setIsLoading(false);
             // Stop notifications after receiving OK
