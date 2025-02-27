@@ -73,7 +73,7 @@ export function DeviceDetails({
           <CardContent>
             {latestTelemetry ? (
               <MoistureDiagram
-                moisture={convertToPercentage(latestTelemetry.soil_moisture)}
+                moisture={latestTelemetry.soil_moisture}
                 lastMeasuredAt={new Date(latestTelemetry.timestamp)}
                 onRefresh={handleRefresh}
                 isRefreshing={isRefreshing}
