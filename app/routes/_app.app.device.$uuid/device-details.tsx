@@ -148,6 +148,7 @@ function SortableDiagramCard({
     transition,
     zIndex: isDragging ? 1 : 0,
     opacity: isDragging ? 0.8 : 1,
+    ...(isDragging && { scale: "0.98" }),
   };
 
   const renderDiagram = () => {
@@ -250,7 +251,7 @@ function SortableDiagramCard({
       className={cn(
         "w-full",
         isEditMode && "relative",
-        isDragging && "shadow-lg"
+        isDragging && "shadow-lg border-2 border-primary"
       )}
     >
       {isEditMode && (
@@ -258,15 +259,16 @@ function SortableDiagramCard({
           <Button
             variant="destructive"
             size="icon"
-            className="absolute -right-2 -top-2 h-8 w-8 rounded-full z-10"
+            className="absolute -right-3 -top-3 h-12 w-12 rounded-full z-10"
             onClick={() => onRemove(id)}
           >
-            <TrashIcon className="h-4 w-4" />
+            <TrashIcon className="h-6 w-6" />
           </Button>
           <div
             {...attributes}
             {...listeners}
-            className="absolute left-3 top-3 h-8 w-8 flex items-center justify-center cursor-grab active:cursor-grabbing z-10 bg-background rounded-md"
+            className="absolute left-3 top-3 h-8 w-8 flex items-center justify-center cursor-grab active:cursor-grabbing z-10 bg-background rounded-md touch-action-none hover:bg-muted transition-colors"
+            style={{ touchAction: "none" }}
           >
             <GripIcon className="h-5 w-5 text-muted-foreground" />
           </div>
@@ -282,7 +284,15 @@ export function DeviceDetails({
   telemetry: initialTelemetry,
   dashboardLayout: initialDashboardLayout,
 }: DeviceDetailsProps) {
-  const fetcher = useFetcher<PaginatedResponse<Telemetry>>();
+  // Define the type for the telemetry refresh action data
+  interface TelemetryRefreshActionData {
+    success: boolean;
+    telemetry?: PaginatedResponse<Telemetry>;
+    error?: string;
+    _action: string;
+  }
+
+  const fetcher = useFetcher<TelemetryRefreshActionData>();
   const submit = useSubmit();
   const navigation = useNavigation();
   const actionData = useActionData<SaveLayoutActionData>();
@@ -296,8 +306,28 @@ export function DeviceDetails({
     x: number;
     y: number;
   } | null>(null);
-  const telemetry = fetcher.data ?? initialTelemetry;
-  const latestTelemetry = telemetry.results[0];
+
+  // Use fetcher data if it's a telemetry refresh, otherwise use initialTelemetry
+  const [telemetryData, setTelemetryData] =
+    useState<PaginatedResponse<Telemetry>>(initialTelemetry);
+
+  // Update telemetry data when fetcher returns new data
+  useEffect(() => {
+    if (
+      fetcher.data?.success &&
+      fetcher.data?._action === "refreshTelemetry" &&
+      fetcher.data?.telemetry
+    ) {
+      setTelemetryData(fetcher.data.telemetry);
+    }
+  }, [fetcher.data]);
+
+  // Update telemetry data when initialTelemetry changes
+  useEffect(() => {
+    setTelemetryData(initialTelemetry);
+  }, [initialTelemetry]);
+
+  const latestTelemetry = telemetryData.results[0];
 
   // Use action data for layout if available (from POST response)
   const [diagrams, setDiagrams] = useState<DiagramItem[]>(
@@ -335,7 +365,10 @@ export function DeviceDetails({
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    fetcher.submit({}, { method: "post" });
+    fetcher.submit(
+      { _action: "refreshTelemetry" },
+      { method: "post", action: `/app/device/${device.uuid}` }
+    );
     setTimeout(() => {
       setIsRefreshing(false);
     }, 1000);

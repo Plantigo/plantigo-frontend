@@ -94,13 +94,31 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   // Refresh telemetry data
-  try {
-    const telemetry = await telemetryActions.getAll(request, { device: uuid });
-    return json({ telemetry });
-  } catch (error) {
-    console.error("Error refreshing telemetry:", error);
-    return json({ error: "Failed to refresh telemetry" }, { status: 500 });
+  if (_action === "refreshTelemetry") {
+    try {
+      const telemetry = await telemetryActions.getAll(request, {
+        device: uuid,
+      });
+      return json({
+        success: true,
+        telemetry,
+        _action: "refreshTelemetry",
+      });
+    } catch (error) {
+      console.error("Error refreshing telemetry:", error);
+      return json(
+        {
+          success: false,
+          error: "Failed to refresh telemetry",
+          _action: "refreshTelemetry",
+        },
+        { status: 500 }
+      );
+    }
   }
+
+  // Default action - just return empty success
+  return json({ success: true });
 }
 
 export default function DeviceRoute() {
