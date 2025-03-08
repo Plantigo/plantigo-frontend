@@ -282,7 +282,15 @@ export function DeviceDetails({
   telemetry: initialTelemetry,
   dashboardLayout: initialDashboardLayout,
 }: DeviceDetailsProps) {
-  const fetcher = useFetcher<PaginatedResponse<Telemetry>>();
+  // Define the type for the telemetry refresh action data
+  interface TelemetryRefreshActionData {
+    success: boolean;
+    telemetry?: PaginatedResponse<Telemetry>;
+    error?: string;
+    _action: string;
+  }
+
+  const fetcher = useFetcher<TelemetryRefreshActionData>();
   const submit = useSubmit();
   const navigation = useNavigation();
   const actionData = useActionData<SaveLayoutActionData>();
@@ -296,8 +304,28 @@ export function DeviceDetails({
     x: number;
     y: number;
   } | null>(null);
-  const telemetry = fetcher.data ?? initialTelemetry;
-  const latestTelemetry = telemetry.results[0];
+
+  // Use fetcher data if it's a telemetry refresh, otherwise use initialTelemetry
+  const [telemetryData, setTelemetryData] =
+    useState<PaginatedResponse<Telemetry>>(initialTelemetry);
+
+  // Update telemetry data when fetcher returns new data
+  useEffect(() => {
+    if (
+      fetcher.data?.success &&
+      fetcher.data?._action === "refreshTelemetry" &&
+      fetcher.data?.telemetry
+    ) {
+      setTelemetryData(fetcher.data.telemetry);
+    }
+  }, [fetcher.data]);
+
+  // Update telemetry data when initialTelemetry changes
+  useEffect(() => {
+    setTelemetryData(initialTelemetry);
+  }, [initialTelemetry]);
+
+  const latestTelemetry = telemetryData.results[0];
 
   // Use action data for layout if available (from POST response)
   const [diagrams, setDiagrams] = useState<DiagramItem[]>(
@@ -335,7 +363,10 @@ export function DeviceDetails({
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    fetcher.submit({}, { method: "post" });
+    fetcher.submit(
+      { _action: "refreshTelemetry" },
+      { method: "post", action: `/app/device/${device.uuid}` }
+    );
     setTimeout(() => {
       setIsRefreshing(false);
     }, 1000);
