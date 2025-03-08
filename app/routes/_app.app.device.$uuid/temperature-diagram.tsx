@@ -3,20 +3,20 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 
-interface MoistureDiagramProps {
-  moisture?: number;
+interface TemperatureDiagramProps {
+  temperature?: number;
   lastMeasuredAt?: Date;
   onRefresh: () => void;
   isRefreshing?: boolean;
 }
 
-export default function MoistureDiagram({
-  moisture,
+export default function TemperatureDiagram({
+  temperature,
   lastMeasuredAt,
   onRefresh,
   isRefreshing = false,
-}: MoistureDiagramProps) {
-  if (moisture === undefined || lastMeasuredAt === undefined) {
+}: TemperatureDiagramProps) {
+  if (temperature === undefined || lastMeasuredAt === undefined) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
         <AlertCircle className="h-12 w-12 text-gray-400 mb-4" />
@@ -24,7 +24,7 @@ export default function MoistureDiagram({
           No Data Available
         </h3>
         <p className="text-sm text-gray-500 mb-4">
-          There is no moisture data available for this device yet.
+          There is no temperature data available for this device yet.
         </p>
         <Button
           onClick={onRefresh}
@@ -44,47 +44,55 @@ export default function MoistureDiagram({
     );
   }
 
+  // Temperature range from 0 to 40 degrees Celsius
+  const minTemp = 0;
+  const maxTemp = 40;
+  const normalizedTemp = Math.min(Math.max(temperature, minTemp), maxTemp);
+  const percentage = ((normalizedTemp - minTemp) / (maxTemp - minTemp)) * 100;
+
   const circumference = 2 * Math.PI * 90; // 90 is the radius
-  const offset = circumference - (moisture / 100) * circumference;
+  const offset = circumference - (percentage / 100) * circumference;
 
-  const getMoistureColor = (level: number) => {
-    if (level <= 33) return "text-red-500";
-    if (level <= 66) return "text-yellow-500";
-    return "text-green-500";
+  const getTemperatureColor = (temp: number) => {
+    if (temp <= 15) return "text-blue-500";
+    if (temp <= 25) return "text-green-500";
+    return "text-red-500";
   };
 
-  const getMoistureBackgroundColor = (level: number) => {
-    if (level <= 33) return "text-red-200";
-    if (level <= 66) return "text-yellow-200";
-    return "text-green-200";
+  const getTemperatureBackgroundColor = (temp: number) => {
+    if (temp <= 15) return "text-blue-200";
+    if (temp <= 25) return "text-green-200";
+    return "text-red-200";
   };
 
-  const getMoistureTextColor = (level: number) => {
-    if (level <= 33) return "text-red-700";
-    if (level <= 66) return "text-yellow-700";
-    return "text-green-700";
+  const getTemperatureTextColor = (temp: number) => {
+    if (temp <= 15) return "text-blue-700";
+    if (temp <= 25) return "text-green-700";
+    return "text-red-700";
   };
 
-  const getMoistureStatus = (level: number) => {
-    if (level <= 33) {
+  const getTemperatureStatus = (temp: number) => {
+    if (temp <= 15) {
       return {
-        title: "Low Moisture",
-        description: "Your plant needs water immediately! The soil is too dry.",
+        title: "Cold",
+        description:
+          "The temperature is low. Some plants may need warmer conditions.",
       };
     }
-    if (level <= 66) {
+    if (temp <= 25) {
       return {
-        title: "Moderate Moisture",
-        description: "Consider watering soon. The soil is getting dry.",
+        title: "Optimal Temperature",
+        description: "Perfect temperature range for most plants.",
       };
     }
     return {
-      title: "Optimal Moisture",
-      description: "Perfect! Your plant has enough water.",
+      title: "Hot",
+      description:
+        "The temperature is high. Consider providing shade or cooling.",
     };
   };
 
-  const status = getMoistureStatus(moisture);
+  const status = getTemperatureStatus(temperature);
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -99,7 +107,7 @@ export default function MoistureDiagram({
       <div className="relative w-64 h-64">
         <svg className="w-full h-full" viewBox="0 0 200 200">
           <circle
-            className={getMoistureBackgroundColor(moisture)}
+            className={getTemperatureBackgroundColor(temperature)}
             strokeWidth="10"
             stroke="currentColor"
             fill="transparent"
@@ -108,7 +116,7 @@ export default function MoistureDiagram({
             cy="100"
           />
           <circle
-            className={getMoistureColor(moisture)}
+            className={getTemperatureColor(temperature)}
             strokeWidth="10"
             stroke="currentColor"
             fill="transparent"
@@ -123,15 +131,19 @@ export default function MoistureDiagram({
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <span
-            className={`text-4xl font-bold ${getMoistureTextColor(moisture)}`}
+            className={`text-4xl font-bold ${getTemperatureTextColor(
+              temperature
+            )}`}
           >
-            {moisture}%
+            {temperature.toFixed(1)}°C
           </span>
         </div>
       </div>
       <div className="mt-4 text-center">
         <h2
-          className={`text-xl font-semibold ${getMoistureTextColor(moisture)}`}
+          className={`text-xl font-semibold ${getTemperatureTextColor(
+            temperature
+          )}`}
         >
           {status.title}
         </h2>

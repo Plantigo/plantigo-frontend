@@ -3,20 +3,20 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 
-interface MoistureDiagramProps {
-  moisture?: number;
+interface HumidityDiagramProps {
+  humidity?: number;
   lastMeasuredAt?: Date;
   onRefresh: () => void;
   isRefreshing?: boolean;
 }
 
-export default function MoistureDiagram({
-  moisture,
+export default function HumidityDiagram({
+  humidity,
   lastMeasuredAt,
   onRefresh,
   isRefreshing = false,
-}: MoistureDiagramProps) {
-  if (moisture === undefined || lastMeasuredAt === undefined) {
+}: HumidityDiagramProps) {
+  if (humidity === undefined || lastMeasuredAt === undefined) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
         <AlertCircle className="h-12 w-12 text-gray-400 mb-4" />
@@ -24,7 +24,7 @@ export default function MoistureDiagram({
           No Data Available
         </h3>
         <p className="text-sm text-gray-500 mb-4">
-          There is no moisture data available for this device yet.
+          There is no humidity data available for this device yet.
         </p>
         <Button
           onClick={onRefresh}
@@ -44,47 +44,48 @@ export default function MoistureDiagram({
     );
   }
 
+  // Humidity range from 0 to 100%
   const circumference = 2 * Math.PI * 90; // 90 is the radius
-  const offset = circumference - (moisture / 100) * circumference;
+  const offset = circumference - (humidity / 100) * circumference;
 
-  const getMoistureColor = (level: number) => {
-    if (level <= 33) return "text-red-500";
-    if (level <= 66) return "text-yellow-500";
-    return "text-green-500";
+  const getHumidityColor = (level: number) => {
+    if (level <= 30) return "text-amber-500";
+    if (level <= 60) return "text-blue-500";
+    return "text-blue-700";
   };
 
-  const getMoistureBackgroundColor = (level: number) => {
-    if (level <= 33) return "text-red-200";
-    if (level <= 66) return "text-yellow-200";
-    return "text-green-200";
+  const getHumidityBackgroundColor = (level: number) => {
+    if (level <= 30) return "text-amber-200";
+    if (level <= 60) return "text-blue-200";
+    return "text-blue-300";
   };
 
-  const getMoistureTextColor = (level: number) => {
-    if (level <= 33) return "text-red-700";
-    if (level <= 66) return "text-yellow-700";
-    return "text-green-700";
+  const getHumidityTextColor = (level: number) => {
+    if (level <= 30) return "text-amber-700";
+    if (level <= 60) return "text-blue-700";
+    return "text-blue-900";
   };
 
-  const getMoistureStatus = (level: number) => {
-    if (level <= 33) {
+  const getHumidityStatus = (level: number) => {
+    if (level <= 30) {
       return {
-        title: "Low Moisture",
-        description: "Your plant needs water immediately! The soil is too dry.",
+        title: "Low Humidity",
+        description: "The air is dry. Some plants may need higher humidity.",
       };
     }
-    if (level <= 66) {
+    if (level <= 60) {
       return {
-        title: "Moderate Moisture",
-        description: "Consider watering soon. The soil is getting dry.",
+        title: "Moderate Humidity",
+        description: "Good humidity level for most plants.",
       };
     }
     return {
-      title: "Optimal Moisture",
-      description: "Perfect! Your plant has enough water.",
+      title: "High Humidity",
+      description: "The air is very humid. Perfect for tropical plants.",
     };
   };
 
-  const status = getMoistureStatus(moisture);
+  const status = getHumidityStatus(humidity);
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -99,7 +100,7 @@ export default function MoistureDiagram({
       <div className="relative w-64 h-64">
         <svg className="w-full h-full" viewBox="0 0 200 200">
           <circle
-            className={getMoistureBackgroundColor(moisture)}
+            className={getHumidityBackgroundColor(humidity)}
             strokeWidth="10"
             stroke="currentColor"
             fill="transparent"
@@ -108,7 +109,7 @@ export default function MoistureDiagram({
             cy="100"
           />
           <circle
-            className={getMoistureColor(moisture)}
+            className={getHumidityColor(humidity)}
             strokeWidth="10"
             stroke="currentColor"
             fill="transparent"
@@ -123,15 +124,15 @@ export default function MoistureDiagram({
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <span
-            className={`text-4xl font-bold ${getMoistureTextColor(moisture)}`}
+            className={`text-4xl font-bold ${getHumidityTextColor(humidity)}`}
           >
-            {moisture}%
+            {humidity.toFixed(1)}%
           </span>
         </div>
       </div>
       <div className="mt-4 text-center">
         <h2
-          className={`text-xl font-semibold ${getMoistureTextColor(moisture)}`}
+          className={`text-xl font-semibold ${getHumidityTextColor(humidity)}`}
         >
           {status.title}
         </h2>

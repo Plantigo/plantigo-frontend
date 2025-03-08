@@ -3,20 +3,20 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 
-interface MoistureDiagramProps {
-  moisture?: number;
+interface PressureDiagramProps {
+  pressure?: number;
   lastMeasuredAt?: Date;
   onRefresh: () => void;
   isRefreshing?: boolean;
 }
 
-export default function MoistureDiagram({
-  moisture,
+export default function PressureDiagram({
+  pressure,
   lastMeasuredAt,
   onRefresh,
   isRefreshing = false,
-}: MoistureDiagramProps) {
-  if (moisture === undefined || lastMeasuredAt === undefined) {
+}: PressureDiagramProps) {
+  if (pressure === undefined || lastMeasuredAt === undefined) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
         <AlertCircle className="h-12 w-12 text-gray-400 mb-4" />
@@ -24,7 +24,7 @@ export default function MoistureDiagram({
           No Data Available
         </h3>
         <p className="text-sm text-gray-500 mb-4">
-          There is no moisture data available for this device yet.
+          There is no pressure data available for this device yet.
         </p>
         <Button
           onClick={onRefresh}
@@ -44,47 +44,59 @@ export default function MoistureDiagram({
     );
   }
 
+  // Pressure range from 950 to 1050 hPa (typical atmospheric pressure range)
+  const minPressure = 950;
+  const maxPressure = 1050;
+  const normalizedPressure = Math.min(
+    Math.max(pressure, minPressure),
+    maxPressure
+  );
+  const percentage =
+    ((normalizedPressure - minPressure) / (maxPressure - minPressure)) * 100;
+
   const circumference = 2 * Math.PI * 90; // 90 is the radius
-  const offset = circumference - (moisture / 100) * circumference;
+  const offset = circumference - (percentage / 100) * circumference;
 
-  const getMoistureColor = (level: number) => {
-    if (level <= 33) return "text-red-500";
-    if (level <= 66) return "text-yellow-500";
-    return "text-green-500";
+  const getPressureColor = (level: number) => {
+    if (level < 1000) return "text-indigo-500";
+    if (level < 1020) return "text-purple-500";
+    return "text-violet-500";
   };
 
-  const getMoistureBackgroundColor = (level: number) => {
-    if (level <= 33) return "text-red-200";
-    if (level <= 66) return "text-yellow-200";
-    return "text-green-200";
+  const getPressureBackgroundColor = (level: number) => {
+    if (level < 1000) return "text-indigo-200";
+    if (level < 1020) return "text-purple-200";
+    return "text-violet-200";
   };
 
-  const getMoistureTextColor = (level: number) => {
-    if (level <= 33) return "text-red-700";
-    if (level <= 66) return "text-yellow-700";
-    return "text-green-700";
+  const getPressureTextColor = (level: number) => {
+    if (level < 1000) return "text-indigo-700";
+    if (level < 1020) return "text-purple-700";
+    return "text-violet-700";
   };
 
-  const getMoistureStatus = (level: number) => {
-    if (level <= 33) {
+  const getPressureStatus = (level: number) => {
+    if (level < 1000) {
       return {
-        title: "Low Moisture",
-        description: "Your plant needs water immediately! The soil is too dry.",
+        title: "Low Pressure",
+        description:
+          "Atmospheric pressure is low. May indicate changing weather.",
       };
     }
-    if (level <= 66) {
+    if (level < 1020) {
       return {
-        title: "Moderate Moisture",
-        description: "Consider watering soon. The soil is getting dry.",
+        title: "Normal Pressure",
+        description: "Atmospheric pressure is within normal range.",
       };
     }
     return {
-      title: "Optimal Moisture",
-      description: "Perfect! Your plant has enough water.",
+      title: "High Pressure",
+      description:
+        "Atmospheric pressure is high. Usually indicates stable weather.",
     };
   };
 
-  const status = getMoistureStatus(moisture);
+  const status = getPressureStatus(pressure);
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -99,7 +111,7 @@ export default function MoistureDiagram({
       <div className="relative w-64 h-64">
         <svg className="w-full h-full" viewBox="0 0 200 200">
           <circle
-            className={getMoistureBackgroundColor(moisture)}
+            className={getPressureBackgroundColor(pressure)}
             strokeWidth="10"
             stroke="currentColor"
             fill="transparent"
@@ -108,7 +120,7 @@ export default function MoistureDiagram({
             cy="100"
           />
           <circle
-            className={getMoistureColor(moisture)}
+            className={getPressureColor(pressure)}
             strokeWidth="10"
             stroke="currentColor"
             fill="transparent"
@@ -123,15 +135,15 @@ export default function MoistureDiagram({
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <span
-            className={`text-4xl font-bold ${getMoistureTextColor(moisture)}`}
+            className={`text-4xl font-bold ${getPressureTextColor(pressure)}`}
           >
-            {moisture}%
+            {pressure.toFixed(0)} hPa
           </span>
         </div>
       </div>
       <div className="mt-4 text-center">
         <h2
-          className={`text-xl font-semibold ${getMoistureTextColor(moisture)}`}
+          className={`text-xl font-semibold ${getPressureTextColor(pressure)}`}
         >
           {status.title}
         </h2>
