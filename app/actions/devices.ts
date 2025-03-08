@@ -9,6 +9,19 @@ export interface Device {
   plant_name: string;
 }
 
+export interface DiagramItem {
+  id: string;
+  type: "temperature" | "moisture" | "humidity" | "pressure";
+}
+
+export interface DashboardLayout {
+  uuid: string;
+  device: string;
+  layout: DiagramItem[];
+  created_at: string;
+  updated_at: string;
+}
+
 export const deviceActions = {
   create: async (request: Request, data: Omit<Device, "uuid" | "user">) => {
     return apiClient("/api/v1/devices/", {
@@ -45,5 +58,24 @@ export const deviceActions = {
       request,
       method: "DELETE",
     });
+  },
+
+  getDashboardLayout: async (request: Request, deviceUuid: string) => {
+    return apiClient(`/api/v1/devices/${deviceUuid}/dashboard_layout/`, {
+      request,
+      method: "GET",
+    }) as Promise<DashboardLayout>;
+  },
+
+  updateDashboardLayout: async (
+    request: Request,
+    deviceUuid: string,
+    layout: DiagramItem[]
+  ) => {
+    return apiClient(`/api/v1/devices/${deviceUuid}/dashboard_layout/`, {
+      request,
+      method: "PUT",
+      body: JSON.stringify({ layout }),
+    }) as Promise<DashboardLayout>;
   },
 };
